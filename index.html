@@ -126,7 +126,9 @@
                         puntiCasa: parseInt(cols[4]) || 0,
                         puntiFuori: parseInt(cols[5]) || 0,
                         fuori: cols[6].trim(),
-                        giocata: cols[7].toUpperCase().trim() === 'SI'
+                        giocata: cols[7].toUpperCase().trim() === 'SI',
+                        orario: cols[8] ? cols[8].trim() : '',
+                        campo: cols[9] ? cols[9].trim() : ''
                     });
                 }
             }
@@ -229,8 +231,19 @@
             if(lista.length === 0) { container.innerHTML = `<p class="text-gray-400 text-center py-8">Nessun match in questa sezione al momento.</p>`; return; }
             let html = `<h3 class="text-xl font-bold mb-4 ${coloreTesto}"><i class="fas ${icona} mr-2"></i>${titolo}</h3><div class="space-y-3">`;
             lista.forEach(p => {
+                let infoAggiuntive = '';
+                if (p.orario || p.campo) {
+                    infoAggiuntive = `<div class="text-xs text-gray-400 mt-1 flex flex-wrap gap-x-3 justify-center sm:justify-start">`;
+                    if (p.orario) infoAggiuntive += `<span><i class="far fa-clock text-orange-400 mr-1"></i>${p.orario}</span>`;
+                    if (p.campo) infoAggiuntive += `<span><i class="fas fa-map-marker-alt text-orange-400 mr-1"></i>${p.campo}</span>`;
+                    infoAggiuntive += `</div>`;
+                }
+
                 html += `<div class="bg-gray-700 p-3 sm:p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-2">
-                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-gray-400 font-mono w-full sm:w-auto text-center sm:text-left"><b class="text-orange-400">${p.girone.toUpperCase()}</b> - ${p.turno} - ${p.data}</span>
+                            <div class="w-full sm:w-auto text-center sm:text-left">
+                                <span class="text-xs bg-gray-900 border border-gray-600 px-2 py-1 rounded text-gray-300 font-mono inline-block"><b class="text-orange-400">${p.girone.toUpperCase()}</b> - ${p.turno} - ${p.data}</span>
+                                ${infoAggiuntive}
+                            </div>
                             <div class="flex items-center justify-center gap-2 sm:gap-4 text-sm sm:text-lg w-full sm:w-auto">
                                 <span class="text-right flex-1 sm:flex-none font-semibold truncate max-w-[120px] sm:max-w-none text-gray-200">${p.casa}</span>
                                 <span class="text-orange-500 font-normal text-xs uppercase tracking-wider px-1 flex-shrink-0">vs</span>
@@ -245,8 +258,19 @@
             if(lista.length === 0) { container.innerHTML = `<p class="text-gray-400 text-center py-8">Nessun risultato disponibile.</p>`; return; }
             let html = `<h3 class="text-xl font-bold mb-4 ${coloreTesto}"><i class="fas ${icona} mr-2"></i>${titolo}</h3><div class="space-y-3">`;
             lista.forEach(p => {
+                let infoAggiuntive = '';
+                if (p.orario || p.campo) {
+                    infoAggiuntive = `<div class="text-xs text-gray-450 mt-1 flex flex-wrap gap-x-3 justify-center sm:justify-start">`;
+                    if (p.orario) infoAggiuntive += `<span><i class="far fa-clock mr-1"></i>${p.orario}</span>`;
+                    if (p.campo) infoAggiuntive += `<span><i class="fas fa-map-marker-alt mr-1"></i>${p.campo}</span>`;
+                    infoAggiuntive += `</div>`;
+                }
+
                 html += `<div class="bg-gray-700 p-3 sm:p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-2">
-                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-gray-400 font-mono w-full sm:w-auto text-center sm:text-left"><b class="text-green-400">${p.girone.toUpperCase()}</b> - ${p.turno}</span>
+                            <div class="w-full sm:w-auto text-center sm:text-left">
+                                <span class="text-xs bg-gray-900 border border-gray-600 px-2 py-1 rounded text-gray-300 font-mono inline-block"><b class="text-green-400">${p.girone.toUpperCase()}</b> - ${p.turno}</span>
+                                ${infoAggiuntive}
+                            </div>
                             <div class="flex items-center justify-center gap-2 sm:gap-4 text-sm sm:text-lg w-full sm:w-auto">
                                 <span class="text-right flex-1 sm:flex-none truncate max-w-[120px] sm:max-w-none ${p.puntiCasa > p.puntiFuori ? 'font-bold text-white': 'text-gray-400'}">${p.casa}</span>
                                 <span class="bg-gray-900 px-2.5 py-1 rounded font-mono font-bold text-yellow-400 text-xs sm:text-base whitespace-nowrap flex-shrink-0 shadow-inner">${p.puntiCasa} - ${p.puntiFuori}</span>
@@ -263,10 +287,21 @@
             lista.forEach(p => {
                 const punteggio = p.giocata 
                     ? `<span class="bg-gray-900 px-2.5 py-1 rounded font-mono font-bold text-yellow-400 text-xs sm:text-base whitespace-nowrap flex-shrink-0 shadow-inner">${p.puntiCasa} - ${p.puntiFuori}</span>` 
-                    : `<span class="text-xs bg-gray-800 px-2 py-1 rounded text-gray-400 font-mono whitespace-nowrap flex-shrink-0">${p.data}</span>`;
+                    : `<span class="text-xs bg-gray-900 border border-gray-600 px-2 py-1 rounded text-gray-300 font-mono whitespace-nowrap flex-shrink-0">${p.data}</span>`;
                 
+                let infoAggiuntive = '';
+                if (p.orario || p.campo) {
+                    infoAggiuntive = `<div class="text-xs text-gray-400 mt-1 flex flex-wrap gap-x-3 justify-center sm:justify-start">`;
+                    if (p.orario) infoAggiuntive += `<span><i class="far fa-clock mr-1"></i>${p.orario}</span>`;
+                    if (p.campo) infoAggiuntive += `<span><i class="fas fa-map-marker-alt mr-1"></i>${p.campo}</span>`;
+                    infoAggiuntive += `</div>`;
+                }
+
                 html += `<div class="bg-gray-700 p-3 sm:p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-2">
-                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-gray-400 font-mono w-full sm:w-auto text-center sm:text-left">${p.turno}</span>
+                            <div class="w-full sm:w-auto text-center sm:text-left">
+                                <span class="text-xs bg-gray-800 px-2 py-1 rounded text-gray-400 font-mono inline-block">${p.turno}</span>
+                                ${infoAggiuntive}
+                            </div>
                             <div class="flex items-center justify-center gap-2 sm:gap-4 text-sm sm:text-lg w-full sm:w-auto">
                                 <span class="text-right flex-1 sm:flex-none truncate max-w-[120px] sm:max-w-none ${p.giocata && p.puntiCasa > p.puntiFuori ? 'font-bold text-white': 'text-gray-400'}">${p.casa}</span>
                                 ${punteggio}
@@ -354,7 +389,6 @@
         }
 
         function stampaSezioneKing(container, lista) {
-            // 1. Pulizia righe vuote o spurie del foglio excel
             let matchValidi = lista.filter(p => p.turno && p.turno.trim() !== "" && (p.casa.trim() !== "" || p.fuori.trim() !== "" || p.giocata));
 
             if(matchValidi.length === 0) { 
@@ -362,7 +396,6 @@
                 return; 
             }
 
-            // 2. Troviamo i nomi reali dei turni in ordine cronologico di apparizione nel foglio
             let turniOrdinati = [];
             matchValidi.forEach(p => {
                 if (!turniOrdinati.includes(p.turno)) turniOrdinati.push(p.turno);
@@ -370,30 +403,28 @@
 
             let colonneTabellone = [];
             
-            // Helper per beccare il vincitore
             function getVincitore(match) {
                 if (!match || !match.giocata) return "Da definire";
                 return match.puntiCasa > match.puntiFuori ? match.casa : match.fuori;
             }
 
-            // 3. Costruiamo matematicamente l'albero turno per turno
             for (let tIdx = 0; tIdx < turniOrdinati.length; tIdx++) {
                 let nomeTurnoCorrente = turniOrdinati[tIdx];
                 let matchFoglio = matchValidi.filter(p => p.turno === nomeTurnoCorrente);
                 let matchDellaColonna = [];
                 
                 if (tIdx === 0) {
-                    // Il primo turno (quello più numeroso) prende i dati direttamente scritti sul foglio
                     matchDellaColonna = matchFoglio.map(p => ({
                         casa: p.casa || "Da definire",
                         fuori: p.fuori || "Da definire",
                         puntiCasa: p.puntiCasa,
                         puntiFuori: p.puntiFuori,
                         giocata: p.giocata,
-                        data: p.data
+                        data: p.data,
+                        orario: p.orario,
+                        campo: p.campo
                     }));
                 } else {
-                    // I turni successivi calcolano i partecipanti in automatico dai vincitori del turno precedente!
                     let colonnaPrecedente = colonneTabellone[tIdx - 1];
                     let nrMatchAttesi = Math.ceil(colonnaPrecedente.match.length / 2);
                     
@@ -404,7 +435,6 @@
                         let autoCasa = m1 ? getVincitore(m1) : "Da definire";
                         let autoFuori = m2 ? getVincitore(m2) : "Da definire";
                         
-                        // Verifichiamo se sul foglio è già stata registrata la riga di punteggio per questo match specifico
                         let p = matchFoglio[i];
                         
                         if (p) {
@@ -414,17 +444,20 @@
                                 puntiCasa: p.puntiCasa,
                                 puntiFuori: p.puntiFuori,
                                 giocata: p.giocata,
-                                data: p.data
+                                data: p.data,
+                                orario: p.orario,
+                                campo: p.campo
                             });
                         } else {
-                            // Se la riga del punteggio non c'è ancora nel foglio, mostriamo comunque lo slot predetto vuoto
                             matchDellaColonna.push({
                                 casa: autoCasa,
                                 fuori: autoFuori,
                                 puntiCasa: 0,
                                 puntiFuori: 0,
                                 giocata: false,
-                                data: ""
+                                data: "",
+                                orario: "",
+                                campo: ""
                             });
                         }
                     }
@@ -436,23 +469,33 @@
                 });
             }
 
-            // 4. Rendering grafico ad albero perfettamente spaziato
             let html = `<div class="mb-4">
                             <h3 class="text-xl font-bold text-purple-400 flex items-center gap-2"><i class="fas fa-medal"></i> Tabellone King of the Court 1v1</h3>
                             <p class="text-xs text-gray-400 mt-1">Sviluppo ad albero automatico. I vincitori avanzano in tempo reale in base ai punteggi inseriti.</p>
                         </div>`;
             
-            // Definiamo un'altezza minima fissa per far funzionare la spaziatura geometrica verticale perfetta di flexbox
             html += `<div class="flex flex-col md:flex-row gap-6 md:overflow-x-auto pb-4 pt-2 items-stretch min-h-[600px]">`;
             
             colonneTabellone.forEach(col => {
                 html += `<div class="flex-1 min-w-[220px] bg-gray-850 p-4 rounded-xl border border-gray-700 flex flex-col">
                             <h4 class="text-xs font-extrabold text-yellow-400 uppercase tracking-wider text-center border-b border-gray-700 pb-2 mb-4 font-mono">${col.nome}</h4>
-                            <div class="flex flex-col justify-around flex-grow gap-2">`;
+                            <div class="flex flex-col justify-around flex-grow gap-3">`;
                 
                 col.match.forEach(m => {
                     const casaVincente = m.giocata && m.puntiCasa > m.puntiFuori;
                     const fuoriVincente = m.giocata && m.puntiFuori > m.puntiCasa;
+                    
+                    let infoKing = [];
+                    if (m.data && m.data !== "Da definire" && m.data.trim() !== "") infoKing.push(m.data);
+                    if (m.orario && m.orario.trim() !== "") infoKing.push(`<i class="far fa-clock text-purple-400"></i> ${m.orario}`);
+                    if (m.campo && m.campo.trim() !== "") infoKing.push(`<i class="fas fa-map-marker-alt text-purple-400"></i> ${m.campo}`);
+                    
+                    let footerHTML = '';
+                    if (!m.giocata && infoKing.length > 0) {
+                        footerHTML = `<div class="bg-gray-750 text-[10px] text-gray-400 text-center py-1 border-t border-gray-600/30 font-mono flex flex-wrap justify-center gap-x-2 px-1">
+                                        ${infoKing.join(' • ')}
+                                      </div>`;
+                    }
                     
                     html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow-lg border-l-4 ${m.giocata ? 'border-l-purple-500' : 'border-l-gray-500'}">
                                 <div class="flex justify-between items-center px-3 py-2 border-b border-gray-600/50 ${casaVincente ? 'bg-purple-600/10' : ''}">
@@ -467,7 +510,7 @@
                                     </span>
                                     ${m.giocata ? `<span class="font-mono font-bold text-sm ${fuoriVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiFuori}</span>` : ''}
                                 </div>
-                                ${!m.giocata && m.data && m.data !== "Da definire" ? `<div class="bg-gray-750 text-[10px] text-gray-400 text-center py-0.5 border-t border-gray-600/30 font-mono"><i class="far fa-clock mr-1"></i>${m.data}</div>` : ''}
+                                ${footerHTML}
                              </div>`;
                 });
                 
