@@ -3,21 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPIN MOVE 2K26</title>
+    <title>Torneo Basket Live</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans min-h-screen flex flex-col">
 
+    <!-- Header -->
     <header class="bg-orange-600 shadow-md p-4 text-center">
         <h1 class="text-3xl font-extrabold uppercase tracking-wider text-white flex justify-center items-center gap-2">
-            <i class="fas fa-basketball-ball text-white"></i> SPIN MOVE 2K26
+            <i class="fas fa-basketball-ball text-white"></i> Torneo Basket University
         </h1>
-        <p class="text-orange-100 text-sm mt-1"></p>
+        <p class="text-orange-100 text-sm mt-1">Classifiche e Risultati gestiti su Schede Separate</p>
     </header>
 
+    <!-- Main Content -->
     <main class="flex-grow container mx-auto px-4 py-8 max-w-4xl">
         
+        <!-- Selezione Categoria -->
         <div id="category-selection" class="hidden flex flex-col sm:flex-row gap-4 justify-center items-center my-8">
             <button onclick="selectCategory('maschile')" class="w-full sm:w-64 bg-orange-500 hover:bg-orange-400 text-white font-bold py-6 px-8 rounded-2xl shadow-lg transition-all text-xl uppercase tracking-wide flex flex-col items-center gap-2">
                 <i class="fas fa-mars text-3xl"></i> Torneo Maschile
@@ -27,6 +30,7 @@
             </button>
         </div>
 
+        <!-- Dashboard Torneo -->
         <div id="tournament-dashboard" class="hidden">
             <div class="flex justify-between items-center mb-6">
                 <button onclick="goBack()" class="text-gray-400 hover:text-white flex items-center gap-2 transition-colors">
@@ -39,8 +43,10 @@
 
             <h2 id="dashboard-title" class="text-2xl font-bold border-b border-gray-700 pb-3 mb-6 uppercase tracking-wide"></h2>
 
+            <!-- Bottoni Navigazione -->
             <div id="navigation-buttons" class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8"></div>
 
+            <!-- Contenuto Dinamico -->
             <div id="section-content" class="bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-700 min-h-[300px]">
                 <div class="text-center py-12 text-gray-400"><i class="fas fa-spinner animate-spin text-2xl mb-2"></i> Caricamento dati...</div>
             </div>
@@ -49,11 +55,10 @@
     </main>
 
     <footer class="bg-gray-950 text-center py-4 text-xs text-gray-500 border-t border-gray-800">
-        &copy; 2026 SPIN MOVE
+        &copy; 2026 Torneo Basket - Multi-Scheda Google Fogli Attiva
     </footer>
 
     <script>
-        // ID del tuo foglio Google corrente
         const GOOGLE_SHEET_ID = '1YYP6YIkMWEwkhPOiU5EaYoGdMl86cuz0aaJ5VjqFlEA'; 
 
         let DATA_PARTITE = [];
@@ -63,15 +68,17 @@
         const sectionsConfig = {
             maschile: [
                 { id: 'calendario', label: 'Calendario', icon: 'fa-calendar-alt' },
-                { id: 'risultati', label: 'Risultati', icon: 'fa-list-ol' },
+                { id: 'risultati', label: 'Turni e Risultati', icon: 'fa-list-ol' },
                 { id: 'classifica', label: 'Classifiche Gironi', icon: 'fa-trophy' },
+                { id: 'king', label: 'King of the Court', icon: 'fa-medal' },
                 { id: 'barilotto', label: 'Torneo Barilotto', icon: 'fa-beer' },
                 { id: 'playoff', label: 'Playoff', icon: 'fa-crown' }
             ],
             femminile: [
                 { id: 'calendario', label: 'Calendario', icon: 'fa-calendar-alt' },
-                { id: 'risultati', label: 'Risultati', icon: 'fa-list-ol' },
+                { id: 'risultati', label: 'Turni e Risultati', icon: 'fa-list-ol' },
                 { id: 'classifica', label: 'Classifiche Gironi', icon: 'fa-trophy' },
+                { id: 'king', label: 'King of the Court', icon: 'fa-medal' },
                 { id: 'playoff', label: 'Playoff', icon: 'fa-crown' }
             ]
         };
@@ -85,20 +92,16 @@
                     contentContainer.innerHTML = `<div class="text-center py-12 text-gray-400"><i class="fas fa-spinner animate-spin text-2xl mb-2"></i> Aggiornamento dati in corso...</div>`;
                 }
 
-                // Generiamo i link per leggere le due schede separate usando il parametro &sheet=
                 const urlMaschile = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Maschile`;
                 const urlFemminile = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Femminile`;
 
-                // Scarichiamo i dati di entrambe le schede contemporaneamente
                 const [resM, resF] = await Promise.all([fetch(urlMaschile), fetch(urlFemminile)]);
                 const textM = await resM.text();
                 const textF = await resF.text();
 
-                // Elaboriamo i dati assegnando la categoria corretta in base alla scheda di provenienza
                 const datiMaschile = parseCSV(textM, 'maschile');
                 const datiFemminile = parseCSV(textF, 'femminile');
 
-                // Uniamo tutto in un unico database locale
                 DATA_PARTITE = [...datiMaschile, ...datiFemminile];
                 
                 const savedCategory = localStorage.getItem('torneo_categoria');
@@ -109,11 +112,10 @@
                     document.getElementById('tournament-dashboard').classList.add('hidden');
                 }
             } catch (error) {
-                document.getElementById('section-content').innerHTML = `<p class="text-red-400 text-center">Errore nel caricamento. Verifica che il foglio sia pubblico ("Chiunque abbia il link può visualizzare") e che le schede in basso si chiamino esattamente "Maschile" e "Femminile".</p>`;
+                document.getElementById('section-content').innerHTML = `<p class="text-red-400 text-center">Errore nel caricamento. Verifica che il foglio sia pubblico e che le schede si chiamino "Maschile" e "Femminile".</p>`;
             }
         }
 
-        // Parser per la struttura a 8 colonne (senza la colonna Categoria)
         function parseCSV(text, categoria) {
             const lines = text.split('\n');
             const data = [];
@@ -206,11 +208,11 @@
             const filtrate = DATA_PARTITE.filter(p => p.categoria === currentCategory);
 
             if (tabId === 'calendario') {
-                const daGiocare = filtrate.filter(p => !p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto'));
+                const daGiocare = filtrate.filter(p => !p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && p.girone.toLowerCase() !== '1v1');
                 stampaListaPartite(container, daGiocare, "Prossime Partite in Calendario", "fa-calendar-alt", "text-orange-400");
                 
             } else if (tabId === 'risultati') {
-                const giocate = filtrate.filter(p => p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto'));
+                const giocate = filtrate.filter(p => p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && p.girone.toLowerCase() !== '1v1');
                 stampaListaRisultati(container, giocate, "Risultati Incontri", "fa-list-ol", "text-green-400");
 
             } else if (tabId === 'barilotto') {
@@ -223,6 +225,10 @@
 
             } else if (tabId === 'classifica') {
                 calcolaEMostraClassifica(container, filtrate);
+                
+            } else if (tabId === 'king') {
+                const matchKing = filtrate.filter(p => p.girone.toLowerCase() === '1v1');
+                stampaSezioneKing(container, matchKing);
             }
         }
 
@@ -282,7 +288,7 @@
             let gironi = {};
             
             tutteLePartite.forEach(p => {
-                if (!p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto')) {
+                if (!p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && p.girone.toLowerCase() !== '1v1') {
                     const gNome = p.girone.toUpperCase() || 'GENERALE';
                     if (!gironi[gNome]) gironi[gNome] = {};
                     if (!gironi[gNome][p.casa]) gironi[gNome][p.casa] = { nome: p.casa, vinte: 0, perse: 0, punti: 0, fatti: 0, subiti: 0 };
@@ -291,7 +297,7 @@
             });
 
             tutteLePartite.forEach(p => {
-                if (p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto')) {
+                if (p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && p.girone.toLowerCase() !== '1v1') {
                     const gNome = p.girone.toUpperCase() || 'GENERALE';
                     if(gironi[gNome] && gironi[gNome][p.casa] && gironi[gNome][p.fuori]) {
                         gironi[gNome][p.casa].fatti += p.puntiCasa;
@@ -352,6 +358,75 @@
             });
 
             container.innerHTML = html;
+        }
+
+        // NUOVA FUNZIONE SPECIFICA PER IL TORNEO 1V1 KING OF THE COURT
+        function stampaSezioneKing(container, lista) {
+            if(lista.length === 0) { 
+                container.innerHTML = `<h3 class="text-xl font-bold mb-4 text-purple-400"><i class="fas fa-medal mr-2"></i>King of the Court (1v1)</h3><p class="text-gray-400 text-center py-8">In attesa dell'inserimento delle sfide 1v1 nel foglio (ricorda di impostare "1v1" nella colonna Girone).</p>`; 
+                return; 
+            }
+            
+            let giocatori = {};
+            lista.forEach(p => {
+                if (p.casa && !giocatori[p.casa]) giocatori[p.casa] = { nome: p.casa, vinte: 0, perse: 0, punti: 0 };
+                if (p.fuori && !giocatori[p.fuori]) giocatori[p.fuori] = { nome: p.fuori, vinte: 0, perse: 0, punti: 0 };
+                
+                if (p.giocata) {
+                    if (p.puntiCasa > p.puntiFuori) {
+                        giocatori[p.casa].vinte += 1;
+                        giocatori[p.casa].punti += 2;
+                        giocatori[p.fuori].perse += 1;
+                    } else if (p.puntiFuori > p.puntiCasa) {
+                        giocatori[p.fuori].vinte += 1;
+                        giocatori[p.fuori].punti += 2;
+                        giocatori[p.casa].perse += 1;
+                    }
+                }
+            });
+
+            let ordinata = Object.values(giocatori).sort((a, b) => b.punti - a.punti);
+            const colorTab = currentCategory === 'maschile' ? 'text-orange-400' : 'text-pink-500';
+            
+            let html = `<h3 class="text-xl font-bold mb-6 text-purple-400"><i class="fas fa-medal mr-2"></i>King of the Court 1v1</h3>`;
+            
+            // Render della Classifica Giocatori
+            html += `<div class="mb-8 bg-gray-850 p-4 rounded-xl border border-gray-700 shadow-lg">
+                        <h4 class="text-lg font-bold mb-3 text-yellow-400 border-b border-gray-700 pb-1 uppercase tracking-wider">Classifica King</h4>
+                        <div class="overflow-x-auto"><table class="w-full text-left border-collapse">
+                        <thead><tr class="border-b border-gray-800 text-gray-400 text-xs uppercase">
+                            <th class="py-2 px-2 w-12">Pos</th><th class="py-2">Giocatore</th>
+                            <th class="py-2 text-center w-16">Punti</th><th class="py-2 text-center w-12">V</th><th class="py-2 text-center w-12">P</th>
+                        </tr></thead><tbody>`;
+            
+            ordinata.forEach((gj, index) => {
+                html += `<tr class="border-b border-gray-800 hover:bg-gray-750 transition-colors">
+                            <td class="py-2.5 px-2 font-bold text-gray-500">${index + 1}</td>
+                            <td class="py-2.5 font-semibold text-sm sm:text-base text-gray-200">${gj.nome}</td>
+                            <td class="py-2.5 text-center font-bold text-yellow-400 text-sm sm:text-base">${gj.punti}</td>
+                            <td class="py-2.5 text-center text-sm">${gj.vinte}</td>
+                            <td class="py-2.5 text-center text-sm">${gj.perse}</td>
+                         </tr>`;
+            });
+            html += `</tbody></table></div></div>`;
+            
+            // Render del palinsesto dei match 1v1
+            html += `<h4 class="text-lg font-bold mb-3 ${colorTab} uppercase tracking-wider">Sfide e Tabellone</h4><div class="space-y-3">`;
+            lista.forEach(p => {
+                const punteggio = p.giocata 
+                    ? `<span class="bg-gray-900 px-2.5 py-1 rounded font-mono font-bold text-yellow-400 text-xs sm:text-base whitespace-nowrap flex-shrink-0 shadow-inner">${p.puntiCasa} - ${p.puntiFuori}</span>` 
+                    : `<span class="text-xs bg-gray-800 px-2 py-1 rounded text-gray-400 font-mono whitespace-nowrap flex-shrink-0">${p.data || 'Da definire'}</span>`;
+                
+                html += `<div class="bg-gray-700 p-3 sm:p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-2">
+                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-gray-400 font-mono w-full sm:w-auto text-center sm:text-left">${p.turno}</span>
+                            <div class="flex items-center justify-center gap-2 sm:gap-4 text-sm sm:text-lg w-full sm:w-auto">
+                                <span class="text-right flex-1 sm:flex-none truncate max-w-[120px] sm:max-w-none ${p.giocata && p.puntiCasa > p.puntiFuori ? 'font-bold text-white': 'text-gray-400'}">${p.casa}</span>
+                                ${punteggio}
+                                <span class="text-left flex-1 sm:flex-none truncate max-w-[120px] sm:max-w-none ${p.giocata && p.puntiFuori > p.puntiCasa ? 'font-bold text-white': 'text-gray-400'}">${p.fuori}</span>
+                            </div>
+                         </div>`;
+            });
+            container.innerHTML = html + `</div>`;
         }
     </script>
 </body>
