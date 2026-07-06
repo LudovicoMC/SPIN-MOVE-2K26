@@ -14,11 +14,10 @@
         <h1 class="text-3xl font-extrabold uppercase tracking-wider text-white flex justify-center items-center gap-2">
             <i class="fas fa-basketball-ball text-white"></i> SPIN MOVE 2K26
         </h1>
-        <p class="text-orange-100 text-sm mt-1"></p>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 py-8 max-w-4xl">
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-5xl">
         
         <!-- Selezione Categoria -->
         <div id="category-selection" class="hidden flex flex-col sm:flex-row gap-4 justify-center items-center my-8">
@@ -276,7 +275,7 @@
                             <span class="text-xs bg-gray-800 px-2 py-1 rounded text-gray-400 font-mono w-full sm:w-auto text-center sm:text-left">${p.turno}</span>
                             <div class="flex items-center justify-center gap-2 sm:gap-4 text-sm sm:text-lg w-full sm:w-auto">
                                 <span class="text-right flex-1 sm:flex-none truncate max-w-[120px] sm:max-w-none ${p.giocata && p.puntiCasa > p.puntiFuori ? 'font-bold text-white': 'text-gray-400'}">${p.casa}</span>
-                                ${pnteggio}
+                                ${punteggio}
                                 <span class="text-left flex-1 sm:flex-none truncate max-w-[120px] sm:max-w-none ${p.giocata && p.puntiFuori > p.puntiCasa ? 'font-bold text-white': 'text-gray-400'}">${p.fuori}</span>
                             </div>
                          </div>`;
@@ -366,64 +365,57 @@
                 return; 
             }
             
-            let giocatori = {};
+            // Raggruppa i match per Turno (es: Quarti, Semifinali, Finale)
+            let turni = {};
             lista.forEach(p => {
-                if (p.casa && !giocatori[p.casa]) giocatori[p.casa] = { nome: p.casa, vinte: 0, perse: 0, punti: 0 };
-                if (p.fuori && !giocatori[p.fuori]) giocatori[p.fuori] = { nome: p.fuori, vinte: 0, perse: 0, punti: 0 };
-                
-                if (p.giocata) {
-                    if (p.puntiCasa > p.puntiFuori) {
-                        giocatori[p.casa].vinte += 1;
-                        giocatori[p.casa].punti += 2;
-                        giocatori[p.fuori].perse += 1;
-                    } else if (p.puntiFuori > p.puntiCasa) {
-                        giocatori[p.fuori].vinte += 1;
-                        giocatori[p.fuori].punti += 2;
-                        giocatori[p.casa].perse += 1;
-                    }
-                }
+                if (!turni[p.turno]) turni[p.turno] = [];
+                turni[p.turno].push(p);
             });
 
-            let ordinata = Object.values(giocatori).sort((a, b) => b.punti - a.punti);
-            const colorTab = currentCategory === 'maschile' ? 'text-orange-400' : 'text-pink-500';
+            // Ordina i turni in base al numero di match decrescente
+            let turniOrdinati = Object.keys(turni).sort((a, b) => turni[b].length - turni[a].length);
+
+            let html = `<div class="mb-4">
+                            <h3 class="text-xl font-bold text-purple-400 flex items-center gap-2"><i class="fas fa-medal"></i> Tabellone King of the Court 1v1</h3>
+                            <p class="text-xs text-gray-400 mt-1">Fase a eliminazione diretta. Scorri lateralmente su smartphone per vedere lo sviluppo dell'albero.</p>
+                        </div>`;
             
-            let html = `<h3 class="text-xl font-bold mb-6 text-purple-400"><i class="fas fa-medal mr-2"></i>King of the Court 1v1</h3>`;
+            html += `<div class="flex flex-col md:flex-row gap-6 md:overflow-x-auto pb-4 pt-2 items-stretch">`;
             
-            html += `<div class="mb-8 bg-gray-850 p-4 rounded-xl border border-gray-700 shadow-lg">
-                        <h4 class="text-lg font-bold mb-3 text-yellow-400 border-b border-gray-700 pb-1 uppercase tracking-wider">Classifica King</h4>
-                        <div class="overflow-x-auto"><table class="w-full text-left border-collapse">
-                        <thead><tr class="border-b border-gray-800 text-gray-400 text-xs uppercase">
-                            <th class="py-2 px-2 w-12">Pos</th><th class="py-2">Giocatore</th>
-                            <th class="py-2 text-center w-16">Punti</th><th class="py-2 text-center w-12">V</th><th class="py-2 text-center w-12">P</th>
-                        </tr></thead><tbody>`;
-            
-            ordinata.forEach((gj, index) => {
-                html += `<tr class="border-b border-gray-800 hover:bg-gray-750 transition-colors">
-                            <td class="py-2.5 px-2 font-bold text-gray-500">${index + 1}</td>
-                            <td class="py-2.5 font-semibold text-sm sm:text-base text-gray-200">${gj.nome}</td>
-                            <td class="py-2.5 text-center font-bold text-yellow-400 text-sm sm:text-base">${gj.punti}</td>
-                            <td class="py-2.5 text-center text-sm">${gj.vinte}</td>
-                            <td class="py-2.5 text-center text-sm">${gj.perse}</td>
-                         </tr>`;
-            });
-            html += `</tbody></table></div></div>`;
-            
-            html += `<h4 class="text-lg font-bold mb-3 ${colorTab} uppercase tracking-wider">Sfide e Tabellone</h4><div class="space-y-3">`;
-            lista.forEach(p => {
-                const punteggio = p.giocata 
-                    ? `<span class="bg-gray-900 px-2.5 py-1 rounded font-mono font-bold text-yellow-400 text-xs sm:text-base whitespace-nowrap flex-shrink-0 shadow-inner">${p.puntiCasa} - ${p.puntiFuori}</span>` 
-                    : `<span class="text-xs bg-gray-800 px-2 py-1 rounded text-gray-400 font-mono whitespace-nowrap flex-shrink-0">${p.data || 'Da definire'}</span>`;
+            turniOrdinati.forEach(turnoNome => {
+                html += `<div class="flex-1 min-w-[240px] bg-gray-850 p-4 rounded-xl border border-gray-700 flex flex-col">
+                            <h4 class="text-xs font-extrabold text-yellow-400 uppercase tracking-wider text-center border-b border-gray-700 pb-2 mb-4 font-mono">${turnoNome}</h4>
+                            <div class="flex flex-col justify-around flex-grow gap-4">`;
                 
-                html += `<div class="bg-gray-700 p-3 sm:p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-2">
-                            <span class="text-xs bg-gray-800 px-2 py-1 rounded text-gray-400 font-mono w-full sm:w-auto text-center sm:text-left">${p.turno}</span>
-                            <div class="flex items-center justify-center gap-2 sm:gap-4 text-sm sm:text-lg w-full sm:w-auto">
-                                <span class="text-right flex-1 sm:flex-none truncate max-w-[120px] sm:max-w-none ${p.giocata && p.puntiCasa > p.puntiFuori ? 'font-bold text-white': 'text-gray-400'}">${p.casa}</span>
-                                ${punteggio}
-                                <span class="text-left flex-1 sm:flex-none truncate max-w-[120px] sm:max-w-none ${p.giocata && p.puntiFuori > p.puntiCasa ? 'font-bold text-white': 'text-gray-400'}">${p.fuori}</span>
-                            </div>
+                turni[turnoNome].forEach(p => {
+                    const casaVincente = p.giocata && p.puntiCasa > p.puntiFuori;
+                    const fuoriVincente = p.giocata && p.puntiFuori > p.puntiCasa;
+                    
+                    html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow-lg transition-transform hover:scale-[1.01]">
+                                <!-- Giocatore Casa -->
+                                <div class="flex justify-between items-center px-3 py-2 border-b border-gray-600/50 ${casaVincente ? 'bg-purple-600/20' : ''}">
+                                    <span class="truncate text-sm ${p.giocata ? (casaVincente ? 'font-bold text-white' : 'text-gray-400 line-through') : 'text-gray-200'}">
+                                        ${casaVincente ? '👑 ' : ''}${p.casa || 'Da definire'}
+                                    </span>
+                                    ${p.giocata ? `<span class="font-mono font-bold text-sm ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${p.puntiCasa}</span>` : ''}
+                                </div>
+                                <!-- Giocatore Fuori -->
+                                <div class="flex justify-between items-center px-3 py-2 ${fuoriVincente ? 'bg-purple-600/20' : ''}">
+                                    <span class="truncate text-sm ${p.giocata ? (fuoriVincente ? 'font-bold text-white' : 'text-gray-400 line-through') : 'text-gray-200'}">
+                                        ${fuoriVincente ? '👑 ' : ''}${p.fuori || 'Da definire'}
+                                    </span>
+                                    ${p.giocata ? `<span class="font-mono font-bold text-sm ${fuoriVincente ? 'text-yellow-400' : 'text-gray-400'}">${p.puntiFuori}</span>` : ''}
+                                </div>
+                                ${!p.giocata && p.data ? `<div class="bg-gray-750 text-[10px] text-gray-400 text-center py-1 border-t border-gray-600/30 font-mono"><i class="far fa-clock mr-1"></i>${p.data}</div>` : ''}
+                             </div>`;
+                });
+                
+                html += `   </div>
                          </div>`;
             });
-            container.innerHTML = html + `</div>`;
+            
+            html += `</div>`;
+            container.innerHTML = html;
         }
     </script>
 </body>
