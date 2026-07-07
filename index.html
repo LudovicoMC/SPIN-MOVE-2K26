@@ -222,7 +222,7 @@
 
             } else if (tabId === 'playoff') {
                 const matchPlayoff = filtrate.filter(p => p.turno.toLowerCase().includes('playoff'));
-                stampaSezioneMista(container, matchPlayoff, "Fase Playoff", "fa-crown", "text-yellow-500");
+                stampaSezionePlayoff(container, matchPlayoff);
 
             } else if (tabId === 'classifica') {
                 calcolaEMostraClassifica(container, filtrate);
@@ -526,6 +526,107 @@
                          </div>`;
             });
             
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function stampaSezionePlayoff(container, lista) {
+            let matchValidi = lista.filter(p => p.turno && p.turno.trim() !== "");
+
+            if(matchValidi.length === 0) { 
+                container.innerHTML = `<h3 class="text-xl font-bold mb-4 text-yellow-500"><i class="fas fa-crown mr-2"></i>Fase Playoff</h3><p class="text-gray-400 text-center py-8">In attesa dell'inserimento dei match di playoff nel foglio.</p>`; 
+                return; 
+            }
+
+            // Separiamo i match per fase leggendo la colonna Turno
+            let quarti = matchValidi.filter(p => p.turno.toLowerCase().includes('quarti'));
+            let semifinali = matchValidi.filter(p => p.turno.toLowerCase().includes('semifinale') || p.turno.toLowerCase().includes('semi'));
+            let finale = matchValidi.filter(p => p.turno.toLowerCase().includes('finale') && !p.turno.toLowerCase().includes('semi'));
+
+            let colonne = [];
+            if (quarti.length > 0) colonne.push({ nome: "Quarti di Finale", match: quarti, tipo: "quarti" });
+            if (semifinali.length > 0) colonne.push({ nome: "Semifinali", match: semifinali, tipo: "semifinali" });
+            if (finale.length > 0) colonne.push({ nome: "Finale", match: finale, tipo: "finale" });
+
+            let html = `<div class="mb-4">
+                            <h3 class="text-xl font-bold text-yellow-500 flex items-center gap-2"><i class="fas fa-crown"></i> Albero Playoff</h3>
+                            <p class="text-xs text-gray-400 mt-1">Aggiornato in tempo reale. Le celle vuote mostrano i posizionamenti previsti dai gironi.</p>
+                        </div>`;
+            
+            // Layout flex: colonna su smartphone, riga affiancata su desktop (md:)
+            html += `<div class="flex flex-col md:flex-row gap-6 items-stretch pb-4 pt-2">`;
+
+            colonne.forEach(col => {
+                const colorTitle = currentCategory === 'maschile' ? 'text-orange-400' : 'text-pink-500';
+                html += `<div class="flex-1 min-w-[250px] bg-gray-850 p-4 rounded-xl border border-gray-700 flex flex-col">
+                            <h4 class="text-sm font-extrabold ${colorTitle} uppercase tracking-wider text-center border-b border-gray-700 pb-2 mb-4 font-mono">${col.nome}</h4>
+                            <div class="flex flex-col justify-around flex-grow gap-4">`;
+
+                col.match.forEach((m, idx) => {
+                    // Generiamo i segnaposto intelligenti (1° e 2° dei gironi) quando la cella è vuota
+                    let segnapostoCasa = "Da definire";
+                    let segnapostoFuori = "Da definire";
+
+                    if (col.tipo === "quarti") {
+                        if (idx === 0) { segnapostoCasa = "1° Girone A"; segnapostoFuori = "2° Girone B"; }
+                        if (idx === 1) { segnapostoCasa = "1° Girone C"; segnapostoFuori = "2° Girone D"; }
+                        if (idx === 2) { segnapostoCasa = "1° Girone B"; segnapostoFuori = "2° Girone A"; }
+                        if (idx === 3) { segnapostoCasa = "1° Girone D"; segnapostoFuori = "2° Girone C"; }
+                    } else if (col.tipo === "semifinali") {
+                        if (quarti.length > 0) {
+                            if (idx === 0) { segnapostoCasa = "Vinc. Quarti 1"; segnapostoFuori = "Vinc. Quarti 2"; }
+                            if (idx === 1) { segnapostoCasa = "Vinc. Quarti 3"; segnapostoFuori = "Vinc. Quarti 4"; }
+                        } else {
+                            // Se il torneo parte direttamente dalle semifinali (es. Femminile a 2 gironi)
+                            if (idx === 0) { segnapostoCasa = "1° Girone A"; segnapostoFuori = "2° Girone B"; }
+                            if (idx === 1) { segnapostoCasa = "1° Girone B"; segnapostoFuori = "2° Girone A"; }
+                        }
+                    } else if (col.tipo === "finale") {
+                        segnapostoCasa = "Vinc. Semi 1";
+                        segnapostoFuori = "Vinc. Semi 2";
+                    }
+
+                    const nomeCasa = m.casa && m.casa.trim() !== "" ? m.casa : segnapostoCasa;
+                    const nomeFuori = m.fuori && m.fuori.trim() !== "" ? m.fuori : segnapostoFuori;
+
+                    const casaVincente = m.giocata && m.puntiCasa > m.puntiFuori;
+                    const fuoriVincente = m.giocata && m.puntiFuori > m.puntiCasa;
+
+                    let infoMatch = [];
+                    if (m.data && m.data.trim() !== "") infoMatch.push(m.data);
+                    if (m.orario && m.orario.trim() !== "") infoMatch.push(`<i class="far fa-clock text-yellow-500"></i> <b>${m.orario}</b>`);
+                    if (m.campo && m.campo.trim() !== "") infoMatch.push(`<i class="fas fa-map-marker-alt text-yellow-500"></i> <b>${m.campo}</b>`);
+
+                    let footerHTML = '';
+                    if (!m.giocata && infoMatch.length > 0) {
+                        footerHTML = `<div class="bg-gray-750 text-xs text-gray-300 text-center py-1.5 border-t border-gray-600/30 font-mono flex flex-wrap justify-center gap-x-2 px-1">
+                                        ${infoMatch.join(' • ')}
+                                      </div>`;
+                    }
+
+                    html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow-lg border-l-4 ${m.giocata ? 'border-l-yellow-500' : 'border-l-gray-500'}">
+                                <!-- Squadra Casa -->
+                                <div class="flex justify-between items-center px-3 py-2.5 border-b border-gray-600/50 ${casaVincente ? 'bg-yellow-600/10' : ''}">
+                                    <span class="truncate text-base ${m.giocata ? (casaVincente ? 'font-bold text-yellow-300' : 'text-gray-500 line-through') : (m.casa && m.casa.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
+                                        ${casaVincente ? '👑 ' : ''}${nomeCasa}
+                                    </span>
+                                    ${m.giocata ? `<span class="font-mono font-bold text-base ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
+                                </div>
+                                <!-- Squadra Fuori -->
+                                <div class="flex justify-between items-center px-3 py-2.5 ${fuoriVincente ? 'bg-yellow-600/10' : ''}">
+                                    <span class="truncate text-base ${m.giocata ? (fuoriVincente ? 'font-bold text-yellow-300' : 'text-gray-500 line-through') : (m.fuori && m.fuori.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
+                                        ${fuoriVincente ? '👑 ' : ''}${nomeFuori}
+                                    </span>
+                                    ${m.giocata ? `<span class="font-mono font-bold text-base ${fuoriVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiFuori}</span>` : ''}
+                                </div>
+                                ${footerHTML}
+                             </div>`;
+                });
+
+                html += `   </div>
+                         </div>`;
+            });
+
             html += `</div>`;
             container.innerHTML = html;
         }
