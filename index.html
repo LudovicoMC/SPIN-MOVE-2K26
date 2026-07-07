@@ -319,13 +319,13 @@
             const gironiOrdinati = Object.keys(gironi).sort();
             
             if (gironiOrdinati.length === 0) { 
-                container.innerHTML = `<p class="text-gray-400 text-center py-8">Inserisci le partite nel foglio per generare las classifiche.</p>`; 
+                container.innerHTML = `<p class="text-gray-400 text-center py-8">Inserisci le partite nel foglio per generare le classifiche.</p>`; 
                 return; 
             }
 
             gironiOrdinati.forEach(gNome => {
                 let ordinata = Object.values(gironi[gNome]).sort((a, b) => {
-                    if (b.punti !== a.punti; ) return b.punti - a.punti;
+                    if (b.punti !== a.punti) return b.punti - a.punti;
                     return (b.fatti - b.subiti) - (a.fatti - a.subiti);
                 });
 
@@ -662,7 +662,7 @@
                     html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow-lg border-l-4 ${m.giocata ? 'border-l-amber-500' : 'border-l-gray-500'}">
                                 <div class="flex justify-between items-center px-3 py-2.5 border-b border-gray-600/50 ${casaVincente ? 'bg-amber-600/10' : ''}">
                                     <span class="truncate text-base ${m.giocata ? (casaVincente ? 'font-bold text-amber-300' : 'text-gray-500 line-through') : (m.casa && m.casa.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
-                                        ${casaVincente ? '🍺 ' : ''}${nomeCasa}
+                                        ${casaVincente ? '👑 ' : ''}${nomeCasa}
                                     </span>
                                     ${m.giocata ? `<span class="font-mono font-bold text-base ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
                                 </div>
