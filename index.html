@@ -203,11 +203,11 @@
             const filtrate = DATA_PARTITE.filter(p => p.categoria === currentCategory);
 
             if (tabId === 'calendario') {
-                const daGiocare = filtrate.filter(p => !p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && p.girone.toLowerCase() !== '1v1');
+                const daGiocare = filtrate.filter(p => !p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1'));
                 stampaListaPartite(container, daGiocare, "Prossime Partite in Calendario", "fa-calendar-alt", "text-orange-400");
                 
             } else if (tabId === 'risultati') {
-                const giocate = filtrate.filter(p => p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && p.girone.toLowerCase() !== '1v1');
+                const giocate = filtrate.filter(p => p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1'));
                 stampaListaRisultati(container, giocate, "Risultati Incontri", "fa-list-ol", "text-green-400");
 
             } else if (tabId === 'barilotto') {
@@ -222,7 +222,7 @@
                 calcolaEMostraClassifica(container, filtrate);
                 
             } else if (tabId === 'king') {
-                const matchKing = filtrate.filter(p => p.girone.toLowerCase() === '1v1');
+                const matchKing = filtrate.filter(p => p.girone.toLowerCase().trim().includes('1v1'));
                 stampaSezioneKing(container, matchKing);
             }
         }
@@ -285,7 +285,7 @@
             let gironi = {};
             
             tutteLePartite.forEach(p => {
-                if (!p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && p.girone.toLowerCase() !== '1v1') {
+                if (!p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1')) {
                     const gNome = p.girone.toUpperCase() || 'GENERALE';
                     if (!gironi[gNome]) gironi[gNome] = {};
                     if (!gironi[gNome][p.casa]) gironi[gNome][p.casa] = { nome: p.casa, vinte: 0, perse: 0, punti: 0, fatti: 0, subiti: 0 };
@@ -294,7 +294,7 @@
             });
 
             tutteLePartite.forEach(p => {
-                if (p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && p.girone.toLowerCase() !== '1v1') {
+                if (p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1')) {
                     const gNome = p.girone.toUpperCase() || 'GENERALE';
                     if(gironi[gNome] && gironi[gNome][p.casa] && gironi[gNome][p.fuori]) {
                         gironi[gNome][p.casa].fatti += p.puntiCasa;
@@ -358,10 +358,11 @@
         }
 
         function stampaSezioneKing(container, lista) {
-            let matchValidi = lista.filter(p => p.turno && p.turno.trim() !== "" && (p.casa.trim() !== "" || p.fuori.trim() !== "" || p.giocata));
+            let matchValiviRaw = lista.filter(p => p.turno && p.turno.trim() !== "");
+            let matchValidi = matchValiviRaw.filter(p => p.casa.trim() !== "" || p.fuori.trim() !== "" || p.giocata);
 
             if(matchValidi.length === 0) { 
-                container.innerHTML = `<h3 class="text-xl font-bold mb-4 text-purple-400"><i class="fas fa-medal mr-2"></i>King of the Court (1v1)</h3><p class="text-gray-400 text-center py-8">In attesa dell'inserimento delle sfide 1v1 nel foglio.</p>`; 
+                container.innerHTML = `<h3 class="text-xl font-bold mb-4 text-purple-400"><i class="fas fa-medal mr-2"></i>King of the Court 1v1</h3><p class="text-gray-400 text-center py-8">In attesa dell'inserimento delle sfide 1v1 nel foglio.</p>`; 
                 return; 
             }
 
@@ -439,7 +440,7 @@
             }
 
             let html = `<div class="mb-4">
-                            <h3 class="text-xl font-bold text-purple-400 flex items-center gap-2"><i class="fas fa-medal"></i> Tabellone King of the Court 1v1</h3>
+                            <h3 class="text-xl font-bold text-purple-400 flex items-center gap-2"><i class="fas fa-medal"></i> King of the Court 1v1</h3>
                         </div>`;
             
             html += `<div class="flex flex-col md:flex-row gap-6 md:overflow-x-auto pb-4 pt-2 items-stretch min-h-[600px]">`;
@@ -508,8 +509,7 @@
             if (finale.length > 0) colonne.push({ nome: "Finale", match: finale, tipo: "finale" });
 
             let html = `<div class="mb-4">
-                            <h3 class="text-xl font-bold text-yellow-500 flex items-center gap-2"><i class="fas fa-crown"></i> Albero Playoff</h3>
-                            <p class="text-xs text-gray-400 mt-1">Aggiornato in tempo reale. Le celle vuote mostrano i posizionamenti previsti dai gironi.</p>
+                            <h3 class="text-xl font-bold text-yellow-500 flex items-center gap-2"><i class="fas fa-crown"></i> Playoff</h3>
                         </div>`;
             
             html += `<div class="flex flex-col md:flex-row gap-6 items-stretch pb-4 pt-2">`;
@@ -605,8 +605,7 @@
             if (finale.length > 0) colonne.push({ nome: "Finale Barilotto", match: finale, tipo: "finale" });
 
             let html = `<div class="mb-4">
-                            <h3 class="text-xl font-bold text-amber-500 flex items-center gap-2"><i class="fas fa-beer"></i> Albero Torneo Barilotto</h3>
-                            <p class="text-xs text-gray-400 mt-1">Fase ad eliminazione: partono le 3° e 4° dei gironi, poi ai Quarti si aggiungono le eliminate dai Quarti Playoff.</p>
+                            <h3 class="text-xl font-bold text-amber-500 flex items-center gap-2"><i class="fas fa-beer"></i> Torneo Barilotto</h3>
                         </div>`;
             
             html += `<div class="flex flex-col md:flex-row gap-6 items-stretch pb-4 pt-2 md:overflow-x-auto">`;
