@@ -218,7 +218,7 @@
 
             } else if (tabId === 'barilotto') {
                 const matchBarilotto = filtrate.filter(p => p.turno.toLowerCase().includes('barilotto'));
-                stampaSezioneMista(container, matchBarilotto, "Torneo Barilotto", "fa-beer", "text-amber-500");
+                stampaSezioneBarilotto(container, matchBarilotto);
 
             } else if (tabId === 'playoff') {
                 const matchPlayoff = filtrate.filter(p => p.turno.toLowerCase().includes('playoff'));
@@ -287,37 +287,6 @@
             container.innerHTML = html + `</div>`;
         }
 
-        function stampaSezioneMista(container, lista, titolo, icona, coloreTesto) {
-            if(lista.length === 0) { container.innerHTML = `<h3 class="text-xl font-bold mb-4 ${coloreTesto}"><i class="fas ${icona} mr-2"></i>${titolo}</h3><p class="text-gray-400 text-center py-8">In attesa della generazione degli accoppiamenti...</p>`; return; }
-            let html = `<h3 class="text-xl font-bold mb-4 ${coloreTesto}"><i class="fas ${icona} mr-2"></i>${titolo}</h3><div class="space-y-3">`;
-            lista.forEach(p => {
-                const punteggio = p.giocata 
-                    ? `<span class="bg-gray-900 px-2.5 py-1 rounded font-mono font-bold text-yellow-400 text-sm sm:text-base whitespace-nowrap flex-shrink-0 shadow-inner">${p.puntiCasa} - ${p.puntiFuori}</span>` 
-                    : `<span class="text-xs bg-gray-900 border border-gray-600 px-2 py-1 rounded text-gray-300 font-mono whitespace-nowrap flex-shrink-0">${p.data}</span>`;
-                
-                let infoAggiuntive = '';
-                if (p.orario || p.campo) {
-                    infoAggiuntive = `<div class="text-sm text-gray-400 mt-1.5 flex flex-wrap gap-x-4 justify-center sm:justify-start">`;
-                    if (p.orario) infoAggiuntive += `<span><i class="far fa-clock mr-1.5"></i>Ora: <b class="text-gray-200">${p.orario}</b></span>`;
-                    if (p.campo) infoAggiuntive += `<span><i class="fas fa-map-marker-alt mr-1.5"></i>Campo: <b class="text-gray-200">${p.campo}</b></span>`;
-                    infoAggiuntive += `</div>`;
-                }
-
-                html += `<div class="bg-gray-700 p-3 sm:p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-3">
-                            <div class="w-full sm:w-auto text-center sm:text-left">
-                                <span class="text-xs bg-gray-800 px-2 py-1 rounded text-gray-400 font-mono inline-block">${p.turno}</span>
-                                ${infoAggiuntive}
-                            </div>
-                            <div class="flex items-center justify-center gap-2 sm:gap-4 text-base sm:text-xl w-full sm:w-auto">
-                                <span class="text-right flex-1 sm:flex-none truncate max-w-[140px] sm:max-w-none ${p.giocata && p.puntiCasa > p.puntiFuori ? 'font-bold text-white': 'text-gray-400'}">${p.casa}</span>
-                                ${punteggio}
-                                <span class="text-left flex-1 sm:flex-none truncate max-w-[140px] sm:max-w-none ${p.giocata && p.puntiFuori > p.puntiCasa ? 'font-bold text-white': 'text-gray-400'}">${p.fuori}</span>
-                            </div>
-                         </div>`;
-            });
-            container.innerHTML = html + `</div>`;
-        }
-
         function calcolaEMostraClassifica(container, tutteLePartite) {
             let gironi = {};
             
@@ -356,7 +325,7 @@
             const gironiOrdinati = Object.keys(gironi).sort();
             
             if (gironiOrdinati.length === 0) { 
-                container.innerHTML = `<p class="text-gray-400 text-center py-8">Inserisci le partite nel foglio per generare le classifiche.</p>`; 
+                container.innerHTML = `<p class="text-gray-400 text-center py-8">Inserisci le partite nel foglio per generare las classifiche.</p>`; 
                 return; 
             }
 
@@ -398,7 +367,7 @@
             let matchValidi = lista.filter(p => p.turno && p.turno.trim() !== "" && (p.casa.trim() !== "" || p.fuori.trim() !== "" || p.giocata));
 
             if(matchValidi.length === 0) { 
-                container.innerHTML = `<h3 class="text-xl font-bold mb-4 text-purple-400"><i class="fas fa-medal mr-2"></i>King of the Court (1v1)</h3><p class="text-gray-400 text-center py-8">In attesa dell'inserimento delle sfide 1v1 nel foglio (ricorda di impostare "1v1" nella colonna Girone).</p>`; 
+                container.innerHTML = `<h3 class="text-xl font-bold mb-4 text-purple-400"><i class="fas fa-medal mr-2"></i>King of the Court (1v1)</h3><p class="text-gray-400 text-center py-8">In attesa dell'inserimento delle sfide 1v1 nel foglio.</p>`; 
                 return; 
             }
 
@@ -446,7 +415,7 @@
                         if (p) {
                             matchDellaColonna.push({
                                 casa: (p.casa && p.casa.trim() !== "" && p.casa !== "Da definire") ? p.casa : autoCasa,
-                                fuori: (p.fuori && p.fuori.trim() !== "" && p.fuori !== "Da Airbnb") ? p.fuori : autoFuori,
+                                fuori: (p.fuori && p.fuori.trim() !== "" && p.fuori !== "Da definire") ? p.fuori : autoFuori,
                                 puntiCasa: p.puntiCasa,
                                 puntiFuori: p.puntiFuori,
                                 giocata: p.giocata,
@@ -477,7 +446,6 @@
 
             let html = `<div class="mb-4">
                             <h3 class="text-xl font-bold text-purple-400 flex items-center gap-2"><i class="fas fa-medal"></i> Tabellone King of the Court 1v1</h3>
-                            <p class="text-xs text-gray-400 mt-1">Sviluppo ad albero automatico. I vincitori avanzano in tempo reale in base ai punteggi inseriti.</p>
                         </div>`;
             
             html += `<div class="flex flex-col md:flex-row gap-6 md:overflow-x-auto pb-4 pt-2 items-stretch min-h-[600px]">`;
@@ -504,14 +472,12 @@
                     }
                     
                     html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow-lg border-l-4 ${m.giocata ? 'border-l-purple-500' : 'border-l-gray-500'}">
-                                <!-- Giocatore Casa -->
                                 <div class="flex justify-between items-center px-3 py-2.5 border-b border-gray-600/50 ${casaVincente ? 'bg-purple-600/10' : ''}">
                                     <span class="truncate text-base ${m.giocata ? (casaVincente ? 'font-bold text-purple-300' : 'text-gray-500 line-through') : (m.casa === 'Da definire' ? 'text-gray-500 italic' : 'text-gray-100 font-semibold')}">
                                         ${casaVincente ? '👑 ' : ''}${m.casa}
                                     </span>
                                     ${m.giocata ? `<span class="font-mono font-bold text-base ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
                                 </div>
-                                <!-- Giocatore Fuori -->
                                 <div class="flex justify-between items-center px-3 py-2.5 ${fuoriVincente ? 'bg-purple-600/10' : ''}">
                                     <span class="truncate text-base ${m.giocata ? (fuoriVincente ? 'font-bold text-purple-300' : 'text-gray-500 line-through') : (m.fuori === 'Da definire' ? 'text-gray-500 italic' : 'text-gray-100 font-semibold')}">
                                         ${fuoriVincente ? '👑 ' : ''}${m.fuori}
@@ -538,7 +504,6 @@
                 return; 
             }
 
-            // Separiamo i match per fase leggendo la colonna Turno
             let quarti = matchValidi.filter(p => p.turno.toLowerCase().includes('quarti'));
             let semifinali = matchValidi.filter(p => p.turno.toLowerCase().includes('semifinale') || p.turno.toLowerCase().includes('semi'));
             let finale = matchValidi.filter(p => p.turno.toLowerCase().includes('finale') && !p.turno.toLowerCase().includes('semi'));
@@ -553,7 +518,6 @@
                             <p class="text-xs text-gray-400 mt-1">Aggiornato in tempo reale. Le celle vuote mostrano i posizionamenti previsti dai gironi.</p>
                         </div>`;
             
-            // Layout flex: colonna su smartphone, riga affiancata su desktop (md:)
             html += `<div class="flex flex-col md:flex-row gap-6 items-stretch pb-4 pt-2">`;
 
             colonne.forEach(col => {
@@ -563,7 +527,6 @@
                             <div class="flex flex-col justify-around flex-grow gap-4">`;
 
                 col.match.forEach((m, idx) => {
-                    // Generiamo i segnaposto intelligenti (1° e 2° dei gironi) quando la cella è vuota
                     let segnapostoCasa = "Da definire";
                     let segnapostoFuori = "Da definire";
 
@@ -577,7 +540,6 @@
                             if (idx === 0) { segnapostoCasa = "Vinc. Quarti 1"; segnapostoFuori = "Vinc. Quarti 2"; }
                             if (idx === 1) { segnapostoCasa = "Vinc. Quarti 3"; segnapostoFuori = "Vinc. Quarti 4"; }
                         } else {
-                            // Se il torneo parte direttamente dalle semifinali (es. Femminile a 2 gironi)
                             if (idx === 0) { segnapostoCasa = "1° Girone A"; segnapostoFuori = "2° Girone B"; }
                             if (idx === 1) { segnapostoCasa = "1° Girone B"; segnapostoFuori = "2° Girone A"; }
                         }
@@ -605,17 +567,112 @@
                     }
 
                     html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow-lg border-l-4 ${m.giocata ? 'border-l-yellow-500' : 'border-l-gray-500'}">
-                                <!-- Squadra Casa -->
                                 <div class="flex justify-between items-center px-3 py-2.5 border-b border-gray-600/50 ${casaVincente ? 'bg-yellow-600/10' : ''}">
                                     <span class="truncate text-base ${m.giocata ? (casaVincente ? 'font-bold text-yellow-300' : 'text-gray-500 line-through') : (m.casa && m.casa.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
                                         ${casaVincente ? '👑 ' : ''}${nomeCasa}
                                     </span>
                                     ${m.giocata ? `<span class="font-mono font-bold text-base ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
                                 </div>
-                                <!-- Squadra Fuori -->
                                 <div class="flex justify-between items-center px-3 py-2.5 ${fuoriVincente ? 'bg-yellow-600/10' : ''}">
                                     <span class="truncate text-base ${m.giocata ? (fuoriVincente ? 'font-bold text-yellow-300' : 'text-gray-500 line-through') : (m.fuori && m.fuori.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
                                         ${fuoriVincente ? '👑 ' : ''}${nomeFuori}
+                                    </span>
+                                    ${m.giocata ? `<span class="font-mono font-bold text-base ${fuoriVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiFuori}</span>` : ''}
+                                </div>
+                                ${footerHTML}
+                             </div>`;
+                });
+
+                html += `   </div>
+                         </div>`;
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function stampaSezioneBarilotto(container, lista) {
+            let matchValidi = lista.filter(p => p.turno && p.turno.trim() !== "");
+
+            if(matchValidi.length === 0) { 
+                container.innerHTML = `<h3 class="text-xl font-bold mb-4 text-amber-500"><i class="fas fa-beer mr-2"></i>Torneo Barilotto</h3><p class="text-gray-400 text-center py-8">In attesa dell'inserimento dei match del Torneo Barilotto nel foglio.</p>`; 
+                return; 
+            }
+
+            let quarti = matchValidi.filter(p => p.turno.toLowerCase().includes('quarti'));
+            let semifinali = matchValidi.filter(p => p.turno.toLowerCase().includes('semifinale') || p.turno.toLowerCase().includes('semi'));
+            let finale = matchValidi.filter(p => p.turno.toLowerCase().includes('finale') && !p.turno.toLowerCase().includes('semi'));
+
+            let colonne = [];
+            if (quarti.length > 0) colonne.push({ nome: "Quarti Barilotto", match: quarti, tipo: "quarti" });
+            if (semifinali.length > 0) colonne.push({ nome: "Semifinali Barilotto", match: semifinali, tipo: "semifinali" });
+            if (finale.length > 0) colonne.push({ nome: "Finale Barilotto", match: finale, tipo: "finale" });
+
+            let html = `<div class="mb-4">
+                            <h3 class="text-xl font-bold text-amber-500 flex items-center gap-2"><i class="fas fa-beer"></i> Albero Torneo Barilotto</h3>
+                            <p class="text-xs text-gray-400 mt-1">Fase ad eliminazione per 3°/4° dei gironi e squadre eliminate dai Quarti Playoff.</p>
+                        </div>`;
+            
+            html += `<div class="flex flex-col md:flex-row gap-6 items-stretch pb-4 pt-2">`;
+
+            colonne.forEach(col => {
+                html += `<div class="flex-1 min-w-[250px] bg-gray-850 p-4 rounded-xl border border-gray-700 flex flex-col">
+                            <h4 class="text-sm font-extrabold text-amber-500 uppercase tracking-wider text-center border-b border-gray-700 pb-2 mb-4 font-mono">${col.nome}</h4>
+                            <div class="flex flex-col justify-around flex-grow gap-4">`;
+
+                col.match.forEach((m, idx) => {
+                    let segnapostoCasa = "Da definire";
+                    let segnapostoFuori = "Da definire";
+
+                    if (col.tipo === "quarti") {
+                        if (idx === 0) { segnapostoCasa = "3° Girone A"; segnapostoFuori = "4° Girone B"; }
+                        if (idx === 1) { segnapostoCasa = "3° Girone C"; segnapostoFuori = "4° Girone D"; }
+                        if (idx === 2) { segnapostoCasa = "3° Girone B"; segnapostoFuori = "4° Girone A"; }
+                        if (idx === 3) { segnapostoCasa = "3° Girone D"; segnapostoFuori = "4° Girone C"; }
+                    } else if (col.tipo === "semifinali") {
+                        // Se ci sono 4 match, significa che si incrociano i 4 vincitori dei quarti barilotto con i 4 perdenti dei quarti playoff
+                        if (col.match.length === 4) {
+                            segnapostoCasa = `Vinc. Quarti Barilotto ${idx + 1}`;
+                            segnapostoFuori = `Perd. Quarti Playoff ${idx + 1}`;
+                        } else {
+                            if (idx === 0) { segnapostoCasa = "Vinc. Match 1"; segnapostoFuori = "Vinc. Match 2"; }
+                            if (idx === 1) { segnapostoCasa = "Vinc. Match 3"; segnapostoFuori = "Vinc. Match 4"; }
+                        }
+                    } else if (col.tipo === "finale") {
+                        segnapostoCasa = "Vinc. Semi Barilotto 1";
+                        segnapostoFuori = "Vinc. Semi Barilotto 2";
+                    }
+
+                    const nomeCasa = m.casa && m.casa.trim() !== "" ? m.casa : segnapostoCasa;
+                    const nomeFuori = m.fuori && m.fuori.trim() !== "" ? m.fuori : segnapostoFuori;
+
+                    const casaVincente = m.giocata && m.puntiCasa > m.puntiFuori;
+                    const fuoriVincente = m.giocata && m.puntiFuori > m.puntiCasa;
+
+                    let infoMatch = [];
+                    if (m.data && m.data.trim() !== "") infoMatch.push(m.data);
+                    if (m.orario && m.orario.trim() !== "") infoMatch.push(`<i class="far fa-clock text-amber-500"></i> <b>${m.orario}</b>`);
+                    if (m.campo && m.campo.trim() !== "") infoMatch.push(`<i class="fas fa-map-marker-alt text-amber-500"></i> <b>${m.campo}</b>`);
+
+                    let footerHTML = '';
+                    if (!m.giocata && infoMatch.length > 0) {
+                        footerHTML = `<div class="bg-gray-750 text-xs text-gray-300 text-center py-1.5 border-t border-gray-600/30 font-mono flex flex-wrap justify-center gap-x-2 px-1">
+                                        ${infoMatch.join(' • ')}
+                                      </div>`;
+                    }
+
+                    html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow-lg border-l-4 ${m.giocata ? 'border-l-amber-500' : 'border-l-gray-500'}">
+                                <!-- Squadra Casa -->
+                                <div class="flex justify-between items-center px-3 py-2.5 border-b border-gray-600/50 ${casaVincente ? 'bg-amber-600/10' : ''}">
+                                    <span class="truncate text-base ${m.giocata ? (casaVincente ? 'font-bold text-amber-300' : 'text-gray-500 line-through') : (m.casa && m.casa.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
+                                        ${casaVincente ? '🍺 ' : ''}${nomeCasa}
+                                    </span>
+                                    ${m.giocata ? `<span class="font-mono font-bold text-base ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
+                                </div>
+                                <!-- Squadra Fuori -->
+                                <div class="flex justify-between items-center px-3 py-2.5 ${fuoriVincente ? 'bg-amber-600/10' : ''}">
+                                    <span class="truncate text-base ${m.giocata ? (fuoriVincente ? 'font-bold text-amber-300' : 'text-gray-500 line-through') : (m.fuori && m.fuori.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
+                                        ${fuoriVincente ? '🍺 ' : ''}${nomeFuori}
                                     </span>
                                     ${m.giocata ? `<span class="font-mono font-bold text-base ${fuoriVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiFuori}</span>` : ''}
                                 </div>
