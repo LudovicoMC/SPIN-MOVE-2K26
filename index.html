@@ -224,7 +224,7 @@
 
             if (tabId === 'calendario') {
                 const daGiocare = filtrate.filter(p => !p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1'));
-                stampaListaPartite(container, daGiocare, "Prossime Partite in Calendario", "fa-calendar-alt", "text-sky-400");
+                stampaListaPartite(container, daGiocare, "Prossime Partite", "fa-calendar-alt", "text-amber-400");
                 
             } else if (tabId === 'risultati') {
                 const giocate = filtrate.filter(p => p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1'));
