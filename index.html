@@ -349,7 +349,7 @@
             let gironi = {};
             tutteLePartite.forEach(p => {
                 if (!p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1')) {
-                    const gNome = p.girone.toUpperCase() || 'GENERALE';
+                    const gNome = p.girone.toUpperCase() || 'UNICO';
                     if (!gironi[gNome]) gironi[gNome] = {};
                     if (!gironi[gNome][p.casa]) gironi[gNome][p.casa] = { nome: p.casa, vinte: 0, perse: 0, punti: 0, fatti: 0, subiti: 0 };
                     if (!gironi[gNome][p.fuori]) gironi[gNome][p.fuori] = { nome: p.fuori, vinte: 0, perse: 0, punti: 0, fatti: 0, subiti: 0 };
