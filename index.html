@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
 
     <style>
-        /* Ottimizzazione per mantenere i nomi delle squadre su un'unica riga senza troncamenti */
+        /* Ottimizzazione mobile per i tabelloni e i nomi delle squadre */
         .match-teams-container, 
         .partita-squadre-container {
             display: flex;
@@ -25,30 +25,24 @@
         .team-name, 
         .squadra-casa, 
         .squadra-fuori {
-            font-size: 12px;
+            font-size: 13px;
             white-space: nowrap;
-            overflow: visible;
-            text-overflow: clip;
+            overflow: hidden;
+            text-overflow: ellipsis;
             flex: 1;
-            letter-spacing: -0.3px;
         }
 
-        .team-name.home, 
-        .squadra-casa {
-            text-align: left;
-        }
-
-        .team-name.away, 
-        .squadra-fuori {
-            text-align: right;
-        }
-
-        .vs-badge, 
-        .match-vs {
-            font-size: 11px;
-            padding: 0 4px;
-            flex-shrink: 0;
-            text-align: center;
+        /* Regole responsive per i tabelloni a colonne (Playoff, Barilotto, King) */
+        @media (max-width: 768px) {
+            .bracket-container {
+                flex-direction: column !important;
+                gap: 16px !important;
+                overflow-x: visible !important;
+            }
+            .bracket-column {
+                min-width: 100% !important;
+                width: 100% !important;
+            }
         }
     </style>
 </head>
@@ -67,7 +61,7 @@
 
     <main class="flex-grow container mx-auto px-4 py-8 max-w-5xl">
         
-        <!-- SELEZIONE CATEGORIA (visibile di default) -->
+        <!-- SELEZIONE CATEGORIA -->
         <div id="category-selection" class="flex flex-col sm:flex-row gap-4 justify-center items-center my-8">
             <button onclick="selectCategory('maschile')" class="w-full sm:w-64 bg-blue-700 hover:bg-blue-600 text-white font-bold py-6 px-8 rounded-2xl shadow-lg transition-all text-xl uppercase tracking-wide flex flex-col items-center gap-2">
                 <i class="fas fa-mars text-3xl"></i> Torneo Maschile
@@ -92,7 +86,7 @@
 
             <div id="navigation-buttons" class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8"></div>
 
-            <div id="section-content" class="bg-gray-800 rounded-xl p-6 shadow-xl border border-gray-700 min-h-[300px]">
+            <div id="section-content" class="bg-gray-800 rounded-xl p-4 sm:p-6 shadow-xl border border-gray-700 min-h-[300px]">
                 <div class="text-center py-12 text-gray-400"><i class="fas fa-spinner animate-spin text-2xl mb-2"></i> Caricamento dati...</div>
             </div>
         </div>
@@ -162,7 +156,7 @@
                 if (savedCategory) {
                     document.getElementById('category-selection').classList.add('hidden');
                     document.getElementById('tournament-dashboard').classList.remove('hidden');
-                    document.getElementById('section-content').innerHTML = `<p class="text-red-400 text-center py-8">Errore nel caricamento dei dati.<br>Verifica che il Foglio Google sia pubblicato sul web e che i fogli si chiamino "Maschile" e "Femminile".</p>`;
+                    document.getElementById('section-content').innerHTML = `<p class="text-red-400 text-center py-8">Errore nel caricamento dei dati.<br>Verifica che il Foglio Google sia pubblicato sul web.</p>`;
                 } else {
                     document.getElementById('category-selection').classList.remove('hidden');
                 }
@@ -293,24 +287,24 @@
             lista.forEach(p => {
                 let infoAggiuntive = '';
                 if (p.orario || p.campo) {
-                    infoAggiuntive = `<div class="text-sm text-gray-350 mt-1.5 flex flex-wrap gap-x-4 justify-center sm:justify-start font-medium">`;
-                    if (p.orario) infoAggiuntive += `<span><i class="far fa-clock ${currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400'} mr-1.5"></i>Ora: <b class="text-white">${p.orario}</b></span>`;
-                    if (p.campo) infoAggiuntive += `<span><i class="fas fa-map-marker-alt ${currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400'} mr-1.5"></i>Campo: <b class="text-white">${p.campo}</b></span>`;
+                    infoAggiuntive = `<div class="text-xs text-gray-300 mt-1.5 flex flex-wrap gap-x-3 justify-center sm:justify-start font-medium">`;
+                    if (p.orario) infoAggiuntive += `<span><i class="far fa-clock ${currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400'} mr-1"></i>Ora: <b class="text-white">${p.orario}</b></span>`;
+                    if (p.campo) infoAggiuntive += `<span><i class="fas fa-map-marker-alt ${currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400'} mr-1"></i>Campo: <b class="text-white">${p.campo}</b></span>`;
                     infoAggiuntive += `</div>`;
                 }
 
                 const badgeColor = currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400';
                 const vsColor = currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400';
 
-                html += `<div class="bg-gray-700 p-3 sm:p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-3">
-                            <div class="w-full sm:w-auto text-center sm:text-left">
-                                <span class="text-[11px] sm:text-xs bg-gray-900 border border-gray-600 px-2 py-1 rounded text-gray-300 font-mono inline-block whitespace-nowrap"><b class="${badgeColor}">${p.girone.toUpperCase()}</b> - ${p.turno} - ${p.data}</span>
+                html += `<div class="bg-gray-700 p-3 rounded-lg flex flex-col justify-between gap-2">
+                            <div class="text-center sm:text-left">
+                                <span class="text-[10px] sm:text-xs bg-gray-900 border border-gray-600 px-2 py-0.5 rounded text-gray-300 font-mono inline-block"><b class="${badgeColor}">${p.girone.toUpperCase()}</b> - ${p.turno} - ${p.data}</span>
                                 ${infoAggiuntive}
                             </div>
-                            <div class="flex items-center justify-center gap-2 sm:gap-4 text-base sm:text-xl w-full sm:w-auto">
-                                <span class="text-right flex-1 sm:flex-none font-semibold truncate max-w-[140px] sm:max-w-none text-gray-100">${p.casa}</span>
-                                <span class="${vsColor} font-normal text-xs uppercase tracking-wider px-1 flex-shrink-0">vs</span>
-                                <span class="text-left flex-1 sm:flex-none font-semibold truncate max-w-[140px] sm:max-w-none text-gray-100">${p.fuori}</span>
+                            <div class="flex items-center justify-between gap-2 text-sm sm:text-base bg-gray-850 px-3 py-2 rounded">
+                                <span class="text-left font-semibold text-gray-100 truncate flex-1">${p.casa}</span>
+                                <span class="${vsColor} font-bold text-xs uppercase px-2 flex-shrink-0">vs</span>
+                                <span class="text-right font-semibold text-gray-100 truncate flex-1">${p.fuori}</span>
                             </div>
                          </div>`;
             });
@@ -323,21 +317,21 @@
             lista.forEach(p => {
                 let infoAggiuntive = '';
                 if (p.orario || p.campo) {
-                    infoAggiuntive = `<div class="text-sm text-gray-400 mt-1.5 flex flex-wrap gap-x-4 justify-center sm:justify-start">`;
-                    if (p.orario) infoAggiuntive += `<span><i class="far fa-clock mr-1.5"></i>Ora: <b class="text-gray-200">${p.orario}</b></span>`;
-                    if (p.campo) infoAggiuntive += `<span><i class="fas fa-map-marker-alt mr-1.5"></i>Campo: <b class="text-gray-200">${p.campo}</b></span>`;
+                    infoAggiuntive = `<div class="text-xs text-gray-400 mt-1.5 flex flex-wrap gap-x-3 justify-center sm:justify-start">`;
+                    if (p.orario) infoAggiuntive += `<span><i class="far fa-clock mr-1"></i>Ora: <b class="text-gray-200">${p.orario}</b></span>`;
+                    if (p.campo) infoAggiuntive += `<span><i class="fas fa-map-marker-alt mr-1"></i>Campo: <b class="text-gray-200">${p.campo}</b></span>`;
                     infoAggiuntive += `</div>`;
                 }
 
-                html += `<div class="bg-gray-700 p-3 sm:p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-3">
-                            <div class="w-full sm:w-auto text-center sm:text-left">
-                                <span class="text-xs bg-gray-900 border border-gray-600 px-2 py-1 rounded text-gray-300 font-mono inline-block"><b class="text-green-400">${p.girone.toUpperCase()}</b> - ${p.turno}</span>
+                html += `<div class="bg-gray-700 p-3 rounded-lg flex flex-col justify-between gap-2">
+                            <div class="text-center sm:text-left">
+                                <span class="text-[10px] sm:text-xs bg-gray-900 border border-gray-600 px-2 py-0.5 rounded text-gray-300 font-mono inline-block"><b class="text-green-400">${p.girone.toUpperCase()}</b> - ${p.turno}</span>
                                 ${infoAggiuntive}
                             </div>
-                            <div class="flex items-center justify-center gap-2 sm:gap-4 text-base sm:text-xl w-full sm:w-auto">
-                                <span class="text-right flex-1 sm:flex-none truncate max-w-[140px] sm:max-w-none ${p.puntiCasa > p.puntiFuori ? 'font-bold text-white': 'text-gray-400'}">${p.casa}</span>
-                                <span class="bg-gray-900 px-2.5 py-1 rounded font-mono font-bold text-yellow-400 text-sm sm:text-base whitespace-nowrap flex-shrink-0 shadow-inner">${p.puntiCasa} - ${p.puntiFuori}</span>
-                                <span class="text-left flex-1 sm:flex-none truncate max-w-[140px] sm:max-w-none ${p.puntiFuori > p.puntiCasa ? 'font-bold text-white': 'text-gray-400'}">${p.fuori}</span>
+                            <div class="flex items-center justify-between gap-2 text-sm sm:text-base bg-gray-850 px-3 py-2 rounded">
+                                <span class="truncate flex-1 ${p.puntiCasa > p.puntiFuori ? 'font-bold text-white': 'text-gray-400'}">${p.casa}</span>
+                                <span class="bg-gray-900 px-2.5 py-1 rounded font-mono font-bold text-yellow-400 text-sm whitespace-nowrap shadow-inner">${p.puntiCasa} - ${p.puntiFuori}</span>
+                                <span class="text-right truncate flex-1 ${p.puntiFuori > p.puntiCasa ? 'font-bold text-white': 'text-gray-400'}">${p.fuori}</span>
                             </div>
                          </div>`;
             });
@@ -346,7 +340,6 @@
 
         function calcolaEMostraClassifica(container, tutteLePartite) {
             let gironi = {};
-            
             tutteLePartite.forEach(p => {
                 if (!p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1')) {
                     const gNome = p.girone.toUpperCase() || 'GENERALE';
@@ -394,24 +387,24 @@
 
                 const colorGirone = currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-500';
 
-                html += `<div class="mb-8 bg-gray-850 p-4 rounded-xl border border-gray-700 shadow-lg">
-                            <h4 class="text-lg font-bold mb-3 ${colorGirone} border-b border-gray-700 pb-1 uppercase tracking-wider">${gNome}</h4>
-                            <div class="overflow-x-auto"><table class="w-full text-left border-collapse">
+                html += `<div class="mb-6 bg-gray-850 p-3 sm:p-4 rounded-xl border border-gray-700 shadow-lg">
+                            <h4 class="text-base font-bold mb-3 ${colorGirone} border-b border-gray-700 pb-1 uppercase tracking-wider">${gNome}</h4>
+                            <div class="overflow-x-auto"><table class="w-full text-left border-collapse text-sm sm:text-base">
                             <thead><tr class="border-b border-gray-800 text-gray-400 text-xs uppercase">
-                                <th class="py-2 px-2 w-12">Pos</th><th class="py-2">Squadra</th>
-                                <th class="py-2 text-center w-16">Punti</th><th class="py-2 text-center w-12">V</th><th class="py-2 text-center w-12">P</th>
-                                <th class="py-2 text-center w-16 hidden sm:table-cell">Diff</th>
+                                <th class="py-2 px-2 w-10">Pos</th><th class="py-2">Squadra</th>
+                                <th class="py-2 text-center w-14">Pti</th><th class="py-2 text-center w-10">V</th><th class="py-2 text-center w-10">P</th>
+                                <th class="py-2 text-center w-14 hidden sm:table-cell">Diff</th>
                             </tr></thead><tbody>`;
                 
                 ordinata.forEach((sq, index) => {
                     const diff = sq.fatti - sq.subiti;
                     html += `<tr class="border-b border-gray-800 hover:bg-gray-750 transition-colors">
-                                <td class="py-2.5 px-2 font-bold text-gray-500">${index + 1}</td>
-                                <td class="py-2.5 font-semibold text-base text-gray-200">${sq.nome}</td>
-                                <td class="py-2.5 text-center font-bold text-green-400 text-base">${sq.punti}</td>
-                                <td class="py-2.5 text-center text-sm">${sq.vinte}</td>
-                                <td class="py-2.5 text-center text-sm">${sq.perse}</td>
-                                <td class="py-2.5 text-center text-xs text-gray-400 hidden sm:table-cell font-mono">${diff > 0 ? '+' + diff : diff}</td>
+                                <td class="py-2 px-2 font-bold text-gray-500">${index + 1}</td>
+                                <td class="py-2 font-semibold text-gray-200 truncate max-w-[120px] sm:max-w-none">${sq.nome}</td>
+                                <td class="py-2 text-center font-bold text-green-400">${sq.punti}</td>
+                                <td class="py-2 text-center text-xs">${sq.vinte}</td>
+                                <td class="py-2 text-center text-xs">${sq.perse}</td>
+                                <td class="py-2 text-center text-xs text-gray-400 hidden sm:table-cell font-mono">${diff > 0 ? '+' + diff : diff}</td>
                              </tr>`;
                 });
                 html += `</tbody></table></div></div>`;
@@ -506,12 +499,12 @@
                             <h3 class="text-xl font-bold text-purple-400 flex items-center gap-2"><i class="fas fa-medal"></i> King of the Court 1v1</h3>
                         </div>`;
             
-            html += `<div class="flex flex-col md:flex-row gap-6 md:overflow-x-auto pb-4 pt-2 items-stretch min-h-[600px]">`;
+            html += `<div class="bracket-container flex flex-col md:flex-row gap-6 pb-4 pt-2">`;
             
             colonneTabellone.forEach(col => {
-                html += `<div class="flex-1 min-w-[240px] bg-gray-850 p-4 rounded-xl border border-gray-700 flex flex-col">
-                            <h4 class="text-xs font-extrabold text-purple-400 uppercase tracking-wider text-center border-b border-gray-700 pb-2 mb-4 font-mono">${col.nome}</h4>
-                            <div class="flex flex-col justify-around flex-grow gap-4">`;
+                html += `<div class="bracket-column flex-1 bg-gray-850 p-3 sm:p-4 rounded-xl border border-gray-700 flex flex-col">
+                            <h4 class="text-xs font-extrabold text-purple-400 uppercase tracking-wider text-center border-b border-gray-700 pb-2 mb-3 font-mono">${col.nome}</h4>
+                            <div class="flex flex-col gap-3">`;
                 
                 col.match.forEach(m => {
                     const casaVincente = m.giocata && m.puntiCasa > m.puntiFuori;
@@ -519,28 +512,28 @@
                     
                     let infoKing = [];
                     if (m.data && m.data !== "Da definire" && m.data.trim() !== "") infoKing.push(m.data);
-                    if (m.orario && m.orario.trim() !== "") infoKing.push(`<i class="far fa-clock text-purple-400"></i> <b>${m.orario}</b>`);
-                    if (m.campo && m.campo.trim() !== "") infoKing.push(`<i class="fas fa-map-marker-alt text-purple-400"></i> <b>${m.campo}</b>`);
+                    if (m.orario && m.orario.trim() !== "") infoKing.push(`<b>${m.orario}</b>`);
+                    if (m.campo && m.campo.trim() !== "") infoKing.push(`<b>${m.campo}</b>`);
                     
                     let footerHTML = '';
                     if (!m.giocata && infoKing.length > 0) {
-                        footerHTML = `<div class="bg-gray-750 text-xs text-gray-300 text-center py-1.5 border-t border-gray-600/30 font-mono flex flex-wrap justify-center gap-x-2 px-1">
+                        footerHTML = `<div class="bg-gray-750 text-[11px] text-gray-300 text-center py-1 border-t border-gray-600/30 font-mono">
                                         ${infoKing.join(' • ')}
                                       </div>`;
                     }
                     
-                    html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow-lg border-l-4 ${m.giocata ? 'border-l-purple-500' : 'border-l-gray-500'}">
-                                <div class="flex justify-between items-center px-3 py-2.5 border-b border-gray-600/50 ${casaVincente ? 'bg-purple-600/10' : ''}">
-                                    <span class="team-name home text-base ${m.giocata ? (casaVincente ? 'font-bold text-purple-300' : 'text-gray-500 line-through') : (m.casa === 'Da definire' ? 'text-gray-500 italic' : 'text-gray-100 font-semibold')}">
+                    html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow border-l-4 ${m.giocata ? 'border-l-purple-500' : 'border-l-gray-500'}">
+                                <div class="flex justify-between items-center px-3 py-2 border-b border-gray-600/50 ${casaVincente ? 'bg-purple-600/10' : ''}">
+                                    <span class="team-name text-sm ${m.giocata ? (casaVincente ? 'font-bold text-purple-300' : 'text-gray-500 line-through') : (m.casa === 'Da definire' ? 'text-gray-500 italic' : 'text-gray-100 font-semibold')}">
                                         ${casaVincente ? '👑 ' : ''}${m.casa}
                                     </span>
-                                    ${m.giocata ? `<span class="font-mono font-bold text-base ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
+                                    ${m.giocata ? `<span class="font-mono font-bold text-sm ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
                                 </div>
-                                <div class="flex justify-between items-center px-3 py-2.5 ${fuoriVincente ? 'bg-purple-600/10' : ''}">
-                                    <span class="team-name away text-base ${m.giocata ? (fuoriVincente ? 'font-bold text-purple-300' : 'text-gray-500 line-through') : (m.fuori === 'Da definire' ? 'text-gray-500 italic' : 'text-gray-100 font-semibold')}">
+                                <div class="flex justify-between items-center px-3 py-2 ${fuoriVincente ? 'bg-purple-600/10' : ''}">
+                                    <span class="team-name text-sm ${m.giocata ? (fuoriVincente ? 'font-bold text-purple-300' : 'text-gray-500 line-through') : (m.fuori === 'Da definire' ? 'text-gray-500 italic' : 'text-gray-100 font-semibold')}">
                                         ${fuoriVincente ? '👑 ' : ''}${m.fuori}
                                     </span>
-                                    ${m.giocata ? `<span class="font-mono font-bold text-base ${fuoriVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiFuori}</span>` : ''}
+                                    ${m.giocata ? `<span class="font-mono font-bold text-sm ${fuoriVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiFuori}</span>` : ''}
                                 </div>
                                 ${footerHTML}
                              </div>`;
@@ -575,13 +568,13 @@
                             <h3 class="text-xl font-bold text-yellow-500 flex items-center gap-2"><i class="fas fa-crown"></i> Playoff</h3>
                         </div>`;
             
-            html += `<div class="flex flex-col md:flex-row gap-6 items-stretch pb-4 pt-2">`;
+            html += `<div class="bracket-container flex flex-col md:flex-row gap-6 pb-4 pt-2">`;
 
             colonne.forEach(col => {
                 const colorTitle = currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-500';
-                html += `<div class="flex-1 min-w-[250px] bg-gray-850 p-4 rounded-xl border border-gray-700 flex flex-col">
-                            <h4 class="text-sm font-extrabold ${colorTitle} uppercase tracking-wider text-center border-b border-gray-700 pb-2 mb-4 font-mono">${col.nome}</h4>
-                            <div class="flex flex-col justify-around flex-grow gap-4">`;
+                html += `<div class="bracket-column flex-1 bg-gray-850 p-3 sm:p-4 rounded-xl border border-gray-700 flex flex-col">
+                            <h4 class="text-xs font-extrabold ${colorTitle} uppercase tracking-wider text-center border-b border-gray-700 pb-2 mb-3 font-mono">${col.nome}</h4>
+                            <div class="flex flex-col gap-3">`;
 
                 col.match.forEach((m, idx) => {
                     let segnapostoCasa = "Da definire";
@@ -607,7 +600,6 @@
                                 if (idx === 1) { segnapostoCasa = "1° Girone B"; segnapostoFuori = "2° Girone A"; }
                             }
                         } else {
-                            // Aggiornato per il torneo femminile: 1° vs 4° e 2° vs 3°
                             if (idx === 0) { segnapostoCasa = "1° Girone Unico"; segnapostoFuori = "4° Girone Unico"; }
                             if (idx === 1) { segnapostoCasa = "2° Girone Unico"; segnapostoFuori = "3° Girone Unico"; }
                         }
@@ -624,28 +616,28 @@
 
                     let infoMatch = [];
                     if (m.data && m.data.trim() !== "") infoMatch.push(m.data);
-                    if (m.orario && m.orario.trim() !== "") infoMatch.push(`<i class="far fa-clock text-yellow-500"></i> <b>${m.orario}</b>`);
-                    if (m.campo && m.campo.trim() !== "") infoMatch.push(`<i class="fas fa-map-marker-alt text-yellow-500"></i> <b>${m.campo}</b>`);
+                    if (m.orario && m.orario.trim() !== "") infoMatch.push(`<b>${m.orario}</b>`);
+                    if (m.campo && m.campo.trim() !== "") infoMatch.push(`<b>${m.campo}</b>`);
 
                     let footerHTML = '';
                     if (!m.giocata && infoMatch.length > 0) {
-                        footerHTML = `<div class="bg-gray-750 text-xs text-gray-300 text-center py-1.5 border-t border-gray-600/30 font-mono flex flex-wrap justify-center gap-x-2 px-1">
+                        footerHTML = `<div class="bg-gray-750 text-[11px] text-gray-300 text-center py-1 border-t border-gray-600/30 font-mono">
                                         ${infoMatch.join(' • ')}
                                       </div>`;
                     }
 
-                    html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow-lg border-l-4 ${m.giocata ? 'border-l-yellow-500' : 'border-l-gray-500'}">
-                                <div class="flex justify-between items-center px-3 py-2.5 border-b border-gray-600/50 ${casaVincente ? 'bg-yellow-600/10' : ''}">
-                                    <span class="team-name home text-base ${m.giocata ? (casaVincente ? 'font-bold text-yellow-300' : 'text-gray-500 line-through') : (m.casa && m.casa.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
+                    html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow border-l-4 ${m.giocata ? 'border-l-yellow-500' : 'border-l-gray-500'}">
+                                <div class="flex justify-between items-center px-3 py-2 border-b border-gray-600/50 ${casaVincente ? 'bg-yellow-600/10' : ''}">
+                                    <span class="team-name text-sm ${m.giocata ? (casaVincente ? 'font-bold text-yellow-300' : 'text-gray-500 line-through') : (m.casa && m.casa.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-xs')}">
                                         ${casaVincente ? '👑 ' : ''}${nomeCasa}
                                     </span>
-                                    ${m.giocata ? `<span class="font-mono font-bold text-base ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
+                                    ${m.giocata ? `<span class="font-mono font-bold text-sm ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
                                 </div>
-                                <div class="flex justify-between items-center px-3 py-2.5 ${fuoriVincente ? 'bg-yellow-600/10' : ''}">
-                                    <span class="team-name away text-base ${m.giocata ? (fuoriVincente ? 'font-bold text-yellow-300' : 'text-gray-500 line-through') : (m.fuori && m.fuori.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
+                                <div class="flex justify-between items-center px-3 py-2 ${fuoriVincente ? 'bg-yellow-600/10' : ''}">
+                                    <span class="team-name text-sm ${m.giocata ? (fuoriVincente ? 'font-bold text-yellow-300' : 'text-gray-500 line-through') : (m.fuori && m.fuori.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-xs')}">
                                         ${fuoriVincente ? '👑 ' : ''}${nomeFuori}
                                     </span>
-                                    ${m.giocata ? `<span class="font-mono font-bold text-base ${fuoriVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiFuori}</span>` : ''}
+                                    ${m.giocata ? `<span class="font-mono font-bold text-sm ${fuoriVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiFuori}</span>` : ''}
                                 </div>
                                 ${footerHTML}
                              </div>`;
@@ -682,12 +674,12 @@
                             <h3 class="text-xl font-bold text-amber-500 flex items-center gap-2"><i class="fas fa-beer"></i> Torneo Barilotto</h3>
                         </div>`;
             
-            html += `<div class="flex flex-col md:flex-row gap-6 items-stretch pb-4 pt-2 md:overflow-x-auto">`;
+            html += `<div class="bracket-container flex flex-col md:flex-row gap-6 pb-4 pt-2">`;
 
             colonne.forEach(col => {
-                html += `<div class="flex-1 min-w-[250px] bg-gray-850 p-4 rounded-xl border border-gray-700 flex flex-col">
-                            <h4 class="text-sm font-extrabold text-amber-500 uppercase tracking-wider text-center border-b border-gray-700 pb-2 mb-4 font-mono">${col.nome}</h4>
-                            <div class="flex flex-col justify-around flex-grow gap-4">`;
+                html += `<div class="bracket-column flex-1 bg-gray-850 p-3 sm:p-4 rounded-xl border border-gray-700 flex flex-col">
+                            <h4 class="text-xs font-extrabold text-amber-500 uppercase tracking-wider text-center border-b border-gray-700 pb-2 mb-3 font-mono">${col.nome}</h4>
+                            <div class="flex flex-col gap-3">`;
 
                 col.match.forEach((m, idx) => {
                     let segnapostoCasa = "Da definire";
@@ -722,28 +714,28 @@
 
                     let infoMatch = [];
                     if (m.data && m.data.trim() !== "") infoMatch.push(m.data);
-                    if (m.orario && m.orario.trim() !== "") infoMatch.push(`<i class="far fa-clock text-amber-500"></i> <b>${m.orario}</b>`);
-                    if (m.campo && m.campo.trim() !== "") infoMatch.push(`<i class="fas fa-map-marker-alt text-amber-500"></i> <b>${m.campo}</b>`);
+                    if (m.orario && m.orario.trim() !== "") infoMatch.push(`<b>${m.orario}</b>`);
+                    if (m.campo && m.campo.trim() !== "") infoMatch.push(`<b>${m.campo}</b>`);
 
                     let footerHTML = '';
                     if (!m.giocata && infoMatch.length > 0) {
-                        footerHTML = `<div class="bg-gray-750 text-xs text-gray-300 text-center py-1.5 border-t border-gray-600/30 font-mono flex flex-wrap justify-center gap-x-2 px-1">
+                        footerHTML = `<div class="bg-gray-750 text-[11px] text-gray-300 text-center py-1 border-t border-gray-600/30 font-mono">
                                         ${infoMatch.join(' • ')}
                                       </div>`;
                     }
 
-                    html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow-lg border-l-4 ${m.giocata ? 'border-l-amber-500' : 'border-l-gray-500'}">
-                                <div class="flex justify-between items-center px-3 py-2.5 border-b border-gray-600/50 ${casaVincente ? 'bg-amber-600/10' : ''}">
-                                    <span class="team-name home text-base ${m.giocata ? (casaVincente ? 'font-bold text-amber-300' : 'text-gray-500 line-through') : (m.casa && m.casa.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
+                    html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow border-l-4 ${m.giocata ? 'border-l-amber-500' : 'border-l-gray-500'}">
+                                <div class="flex justify-between items-center px-3 py-2 border-b border-gray-600/50 ${casaVincente ? 'bg-amber-600/10' : ''}">
+                                    <span class="team-name text-sm ${m.giocata ? (casaVincente ? 'font-bold text-amber-300' : 'text-gray-500 line-through') : (m.casa && m.casa.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-xs')}">
                                         ${casaVincente ? '👑 ' : ''}${nomeCasa}
                                     </span>
-                                    ${m.giocata ? `<span class="font-mono font-bold text-base ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
+                                    ${m.giocata ? `<span class="font-mono font-bold text-sm ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
                                 </div>
-                                <div class="flex justify-between items-center px-3 py-2.5 ${fuoriVincente ? 'bg-amber-600/10' : ''}">
-                                    <span class="team-name away text-base ${m.giocata ? (fuoriVincente ? 'font-bold text-amber-300' : 'text-gray-500 line-through') : (m.fuori && m.fuori.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
+                                <div class="flex justify-between items-center px-3 py-2 ${fuoriVincente ? 'bg-amber-600/10' : ''}">
+                                    <span class="team-name text-sm ${m.giocata ? (fuoriVincente ? 'font-bold text-amber-300' : 'text-gray-500 line-through') : (m.fuori && m.fuori.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-xs')}">
                                         ${fuoriVincente ? '👑 ' : ''}${nomeFuori}
                                     </span>
-                                    ${m.giocata ? `<span class="font-mono font-bold text-base ${fuoriVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiFuori}</span>` : ''}
+                                    ${m.giocata ? `<span class="font-mono font-bold text-sm ${fuoriVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiFuori}</span>` : ''}
                                 </div>
                                 ${footerHTML}
                              </div>`;
