@@ -318,33 +318,36 @@
             container.innerHTML = html + `</div>`;
         }
 
-        function stampaListaRisultati(container, lista, titolo, icona, coloreTesto) {
-    if(lista.length === 0) { container.innerHTML = `<p class="text-gray-400 text-center py-8">Nessun risultato disponibile.</p>`; return; }
+        function stampaListaPartite(container, lista, titolo, icona, coloreTesto) {
+    if(lista.length === 0) { container.innerHTML = `<p class="text-gray-400 text-center py-8">Nessun match in questa sezione al momento.</p>`; return; }
     let html = `<h3 class="text-xl font-bold mb-4 ${coloreTesto}"><i class="fas ${icona} mr-2"></i>${titolo}</h3><div class="space-y-3">`;
     lista.forEach(p => {
-        let infoAggiuntive = '';
-        let partiInfo = [];
+        let partiBadge = [`<b class="${currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400'}">${p.girone.toUpperCase()} - ${p.turno}</b>`];
         
-        if (p.orario && p.orario.trim() !== '') {
-            partiInfo.push(`<span><i class="far fa-clock mr-1"></i>Ora: <b class="text-gray-200">${p.orario}</b></span>`);
-        }
         if (p.campo && p.campo.trim() !== '') {
-            partiInfo.push(`<span><i class="fas fa-map-marker-alt mr-1"></i>Campo: <b class="text-gray-200">${p.campo}</b></span>`);
+            partiBadge.push(`<span class="text-white">${p.campo}</span>`);
+        }
+        if (p.orario && p.orario.trim() !== '') {
+            partiBadge.push(`<span class="text-white">${p.orario}</span>`);
         }
         
-        if (partiInfo.length > 0) {
-            infoAggiuntive = `<div class="text-xs text-gray-400 mt-1.5 flex flex-wrap gap-x-3 justify-center sm:justify-start">` + partiInfo.join(' • ') + `</div>`;
+        let badgeDetails = partiBadge.join(' - ');
+        if (p.data && p.data.trim() !== '') {
+            badgeDetails += ` (${p.data})`;
         }
+
+        const vsColor = currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400';
 
         html += `<div class="bg-gray-700 p-3 rounded-lg flex flex-col justify-between gap-2">
                     <div class="text-center sm:text-left">
-                        <span class="text-[10px] sm:text-xs bg-gray-900 border border-gray-600 px-2 py-0.5 rounded text-gray-300 font-mono inline-block"><b class="text-green-400">${p.girone.toUpperCase()}</b> - ${p.turno}</span>
-                        ${infoAggiuntive}
+                        <span class="text-[10px] sm:text-xs bg-gray-900 border border-gray-600 px-2 py-1 rounded text-gray-300 font-mono inline-block">
+                            ${badgeDetails}
+                        </span>
                     </div>
                     <div class="flex items-center justify-between gap-2 text-sm sm:text-base bg-gray-850 px-3 py-2 rounded">
-                        <span class="truncate flex-1 ${p.puntiCasa > p.puntiFuori ? 'font-bold text-white': 'text-gray-400'}">${p.casa}</span>
-                        <span class="bg-gray-900 px-2.5 py-1 rounded font-mono font-bold text-yellow-400 text-sm whitespace-nowrap shadow-inner">${p.puntiCasa} - ${p.puntiFuori}</span>
-                        <span class="text-right truncate flex-1 ${p.puntiFuori > p.puntiCasa ? 'font-bold text-white': 'text-gray-400'}">${p.fuori}</span>
+                        <span class="text-left font-semibold text-gray-100 truncate flex-1">${p.casa}</span>
+                        <span class="${vsColor} font-bold text-xs uppercase px-2 flex-shrink-0">vs</span>
+                        <span class="text-right font-semibold text-gray-100 truncate flex-1">${p.fuori}</span>
                     </div>
                  </div>`;
     });
