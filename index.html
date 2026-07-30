@@ -9,13 +9,54 @@
     
     <!-- Google Fonts: Permanent Marker -->
     <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
+
+    <style>
+        /* Ottimizzazione per mantenere i nomi delle squadre su un'unica riga senza troncamenti */
+        .match-teams-container, 
+        .partita-squadre-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .team-name, 
+        .squadra-casa, 
+        .squadra-fuori {
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: visible;
+            text-overflow: clip;
+            flex: 1;
+            letter-spacing: -0.3px;
+        }
+
+        .team-name.home, 
+        .squadra-casa {
+            text-align: left;
+        }
+
+        .team-name.away, 
+        .squadra-fuori {
+            text-align: right;
+        }
+
+        .vs-badge, 
+        .match-vs {
+            font-size: 11px;
+            padding: 0 4px;
+            flex-shrink: 0;
+            text-align: center;
+        }
+    </style>
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans min-h-screen flex flex-col">
 
     <!-- HEADER BRANDING -->
 <header class="bg-[#EB6B0E] shadow-md py-2 px-4 overflow-hidden">
     <div class="max-w-7xl mx-auto flex items-center justify-center relative">
-        <!-- Aggiunto translate-y-1.5 per abbassare il logo rispetto al testo -->
         <img src="logo.png" alt="Spin Move Logo" class="h-[90px] md:h-28 w-auto object-contain -mr-3 md:-mr-5 z-10 drop-shadow-md pointer-events-none translate-y-1.5">
         
         <h1 class="text-3xl md:text-5xl uppercase tracking-wider text-white whitespace-nowrap z-0 leading-none drop-shadow-md" style="font-family: 'Permanent Marker', cursive;">
@@ -28,7 +69,6 @@
         
         <!-- SELEZIONE CATEGORIA (visibile di default) -->
         <div id="category-selection" class="flex flex-col sm:flex-row gap-4 justify-center items-center my-8">
-            <!-- PULSANTE TORNEO MASCHILE IMPOSTATO IN AZZURRO -->
             <button onclick="selectCategory('maschile')" class="w-full sm:w-64 bg-blue-700 hover:bg-blue-600 text-white font-bold py-6 px-8 rounded-2xl shadow-lg transition-all text-xl uppercase tracking-wide flex flex-col items-center gap-2">
                 <i class="fas fa-mars text-3xl"></i> Torneo Maschile
             </button>
@@ -491,13 +531,13 @@
                     
                     html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow-lg border-l-4 ${m.giocata ? 'border-l-purple-500' : 'border-l-gray-500'}">
                                 <div class="flex justify-between items-center px-3 py-2.5 border-b border-gray-600/50 ${casaVincente ? 'bg-purple-600/10' : ''}">
-                                    <span class="truncate text-base ${m.giocata ? (casaVincente ? 'font-bold text-purple-300' : 'text-gray-500 line-through') : (m.casa === 'Da definire' ? 'text-gray-500 italic' : 'text-gray-100 font-semibold')}">
+                                    <span class="team-name home text-base ${m.giocata ? (casaVincente ? 'font-bold text-purple-300' : 'text-gray-500 line-through') : (m.casa === 'Da definire' ? 'text-gray-500 italic' : 'text-gray-100 font-semibold')}">
                                         ${casaVincente ? '👑 ' : ''}${m.casa}
                                     </span>
                                     ${m.giocata ? `<span class="font-mono font-bold text-base ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
                                 </div>
                                 <div class="flex justify-between items-center px-3 py-2.5 ${fuoriVincente ? 'bg-purple-600/10' : ''}">
-                                    <span class="truncate text-base ${m.giocata ? (fuoriVincente ? 'font-bold text-purple-300' : 'text-gray-500 line-through') : (m.fuori === 'Da definire' ? 'text-gray-500 italic' : 'text-gray-100 font-semibold')}">
+                                    <span class="team-name away text-base ${m.giocata ? (fuoriVincente ? 'font-bold text-purple-300' : 'text-gray-500 line-through') : (m.fuori === 'Da definire' ? 'text-gray-500 italic' : 'text-gray-100 font-semibold')}">
                                         ${fuoriVincente ? '👑 ' : ''}${m.fuori}
                                     </span>
                                     ${m.giocata ? `<span class="font-mono font-bold text-base ${fuoriVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiFuori}</span>` : ''}
@@ -554,7 +594,6 @@
                             if (idx === 2) { segnapostoCasa = "1° Girone B"; segnapostoFuori = "2° Girone A"; }
                             if (idx === 3) { segnapostoCasa = "1° Girone D"; segnapostoFuori = "2° Girone C"; }
                         } else {
-                            // Gestione 7 squadre girone unico femminile (adattata ai quarti)
                             if (idx === 0) { segnapostoCasa = "3° Girone Unico"; segnapostoFuori = "6° Girone Unico"; }
                             if (idx === 1) { segnapostoCasa = "4° Girone Unico"; segnapostoFuori = "5° Girone Unico"; }
                         }
@@ -568,8 +607,9 @@
                                 if (idx === 1) { segnapostoCasa = "1° Girone B"; segnapostoFuori = "2° Girone A"; }
                             }
                         } else {
-                           if (idx === 0) { segnapostoCasa = "1° Girone Unico"; segnapostoFuori = "4° Girone Unico"; }
-if (idx === 1) { segnapostoCasa = "2° Girone Unico"; segnapostoFuori = "3° Girone Unico"; }
+                            // Aggiornato per il torneo femminile: 1° vs 4° e 2° vs 3°
+                            if (idx === 0) { segnapostoCasa = "1° Girone Unico"; segnapostoFuori = "4° Girone Unico"; }
+                            if (idx === 1) { segnapostoCasa = "2° Girone Unico"; segnapostoFuori = "3° Girone Unico"; }
                         }
                     } else if (col.tipo === "finale") {
                         segnapostoCasa = "Vinc. Semi 1";
@@ -596,13 +636,13 @@ if (idx === 1) { segnapostoCasa = "2° Girone Unico"; segnapostoFuori = "3° Gir
 
                     html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow-lg border-l-4 ${m.giocata ? 'border-l-yellow-500' : 'border-l-gray-500'}">
                                 <div class="flex justify-between items-center px-3 py-2.5 border-b border-gray-600/50 ${casaVincente ? 'bg-yellow-600/10' : ''}">
-                                    <span class="truncate text-base ${m.giocata ? (casaVincente ? 'font-bold text-yellow-300' : 'text-gray-500 line-through') : (m.casa && m.casa.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
+                                    <span class="team-name home text-base ${m.giocata ? (casaVincente ? 'font-bold text-yellow-300' : 'text-gray-500 line-through') : (m.casa && m.casa.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
                                         ${casaVincente ? '👑 ' : ''}${nomeCasa}
                                     </span>
                                     ${m.giocata ? `<span class="font-mono font-bold text-base ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
                                 </div>
                                 <div class="flex justify-between items-center px-3 py-2.5 ${fuoriVincente ? 'bg-yellow-600/10' : ''}">
-                                    <span class="truncate text-base ${m.giocata ? (fuoriVincente ? 'font-bold text-yellow-300' : 'text-gray-500 line-through') : (m.fuori && m.fuori.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
+                                    <span class="team-name away text-base ${m.giocata ? (fuoriVincente ? 'font-bold text-yellow-300' : 'text-gray-500 line-through') : (m.fuori && m.fuori.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
                                         ${fuoriVincente ? '👑 ' : ''}${nomeFuori}
                                     </span>
                                     ${m.giocata ? `<span class="font-mono font-bold text-base ${fuoriVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiFuori}</span>` : ''}
@@ -694,13 +734,13 @@ if (idx === 1) { segnapostoCasa = "2° Girone Unico"; segnapostoFuori = "3° Gir
 
                     html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow-lg border-l-4 ${m.giocata ? 'border-l-amber-500' : 'border-l-gray-500'}">
                                 <div class="flex justify-between items-center px-3 py-2.5 border-b border-gray-600/50 ${casaVincente ? 'bg-amber-600/10' : ''}">
-                                    <span class="truncate text-base ${m.giocata ? (casaVincente ? 'font-bold text-amber-300' : 'text-gray-500 line-through') : (m.casa && m.casa.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
+                                    <span class="team-name home text-base ${m.giocata ? (casaVincente ? 'font-bold text-amber-300' : 'text-gray-500 line-through') : (m.casa && m.casa.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
                                         ${casaVincente ? '👑 ' : ''}${nomeCasa}
                                     </span>
                                     ${m.giocata ? `<span class="font-mono font-bold text-base ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
                                 </div>
                                 <div class="flex justify-between items-center px-3 py-2.5 ${fuoriVincente ? 'bg-amber-600/10' : ''}">
-                                    <span class="truncate text-base ${m.giocata ? (fuoriVincente ? 'font-bold text-amber-300' : 'text-gray-500 line-through') : (m.fuori && m.fuori.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
+                                    <span class="team-name away text-base ${m.giocata ? (fuoriVincente ? 'font-bold text-amber-300' : 'text-gray-500 line-through') : (m.fuori && m.fuori.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-sm')}">
                                         ${fuoriVincente ? '👑 ' : ''}${nomeFuori}
                                     </span>
                                     ${m.giocata ? `<span class="font-mono font-bold text-base ${fuoriVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiFuori}</span>` : ''}
