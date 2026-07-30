@@ -103,6 +103,7 @@
         let DATA_PARTITE = [];
         let currentCategory = '';
         let currentTab = 'calendario';
+        let filtroGironeAttivo = 'tutti';
 
         const sectionsConfig = {
             maschile: [
@@ -252,17 +253,56 @@
             renderContent(tabId);
         }
 
+        function cambiaFiltroGirone(valore) {
+            filtroGironeAttivo = valore;
+            renderContent(currentTab);
+        }
+
+        function creaMenuFiltroGironi(listaPartite) {
+            // Estrae i gironi unici disponibili nelle partite correnti
+            let gironiUnici = [...new Set(listaPartite.map(p => p.girone.toUpperCase().trim()))].sort();
+            
+            if (gironiUnici.length <= 1) return ''; // Se c'è solo un girone non serve il filtro
+
+            let html = `
+            <div class="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gray-850 p-3.5 rounded-xl border border-gray-700">
+                <label for="select-girone" class="text-sm font-semibold text-gray-300 flex items-center gap-2">
+                    <i class="fas fa-filter text-sky-400"></i> Filtra per Girone:
+                </label>
+                <select id="select-girone" onchange="cambiaFiltroGirone(this.value)" class="bg-gray-900 text-white font-medium text-sm rounded-lg border border-gray-600 p-2.5 focus:ring-2 focus:ring-sky-500 focus:outline-none w-full sm:w-auto">
+                    <option value="tutti" ${filtroGironeAttivo === 'tutti' ? 'selected' : ''}>Tutti i Gironi</option>`;
+            
+            gironiUnici.forEach(g => {
+                html += `<option value="${g}" ${filtroGironeAttivo === g ? 'selected' : ''}>${g}</option>`;
+            });
+
+            html += `</select></div>`;
+            return html;
+        }
+
         function renderContent(tabId) {
             const container = document.getElementById('section-content');
             const filtrate = DATA_PARTITE.filter(p => p.categoria === currentCategory);
 
             if (tabId === 'calendario') {
                 const daGiocare = filtrate.filter(p => !p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1'));
-                stampaListaPartite(container, daGiocare, "Prossime Partite", "fa-calendar-alt", currentCategory === 'maschile' ? "text-cyan-400" : "text-pink-400");
+                
+                let listeFiltrata = daGiocare;
+                if (filtroGironeAttivo !== 'tutti') {
+                    listeFiltrata = daGiocare.filter(p => p.girone.toUpperCase().trim() === filtroGironeAttivo);
+                }
+
+                stampaListaPartite(container, listeFiltrata, daGiocare, "Prossime Partite", "fa-calendar-alt", currentCategory === 'maschile' ? "text-cyan-400" : "text-pink-400");
                 
             } else if (tabId === 'risultati') {
                 const giocate = filtrate.filter(p => p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1'));
-                stampaListaRisultati(container, giocate, "Risultati Incontri", "fa-list-ol", "text-green-400");
+                
+                let listeFiltrata = giocate;
+                if (filtroGironeAttivo !== 'tutti') {
+                    listeFiltrata = giocate.filter(p => p.girone.toUpperCase().trim() === filtroGironeAttivo);
+                }
+
+                stampaListaRisultati(container, listeFiltrata, giocate, "Risultati Incontri", "fa-list-ol", "text-green-400");
 
             } else if (tabId === 'barilotto') {
                 const matchBarilotto = filtrate.filter(p => p.turno.toLowerCase().includes('barilotto'));
@@ -281,10 +321,16 @@
             }
         }
 
-        function stampaListaPartite(container, lista, titolo, icona, coloreTesto) {
-            if(lista.length === 0) { container.innerHTML = `<p class="text-gray-400 text-center py-8">Nessun match in questa sezione al momento.</p>`; return; }
-            let html = `<h3 class="text-xl font-bold mb-4 ${coloreTesto}"><i class="fas ${icona} mr-2"></i>${titolo}</h3><div class="space-y-3">`;
-            lista.forEach(p => {
+        function stampaListaPartite(container, listaMostrata, listaTotale, titolo, icona, coloreTesto) {
+            let htmlSelect = creaMenuFiltroGironi(listaTotale);
+            
+            if(listaMostrata.length === 0) { 
+                container.innerHTML = htmlSelect + `<p class="text-gray-400 text-center py-8">Nessun match da giocare per questa selezione.</p>`; 
+                return; 
+            }
+            
+            let html = htmlSelect + `<h3 class="text-xl font-bold mb-4 ${coloreTesto}"><i class="fas ${icona} mr-2"></i>${titolo}</h3><div class="space-y-3">`;
+            listaMostrata.forEach(p => {
                 let partiBadge = [`<b class="${currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400'}">${p.girone.toUpperCase()} - ${p.turno}</b>`];
                 
                 if (p.campo && p.campo.trim() !== '') {
@@ -317,10 +363,16 @@
             container.innerHTML = html + `</div>`;
         }
 
-        function stampaListaRisultati(container, lista, titolo, icona, coloreTesto) {
-            if(lista.length === 0) { container.innerHTML = `<p class="text-gray-400 text-center py-8">Nessun risultato disponibile.</p>`; return; }
-            let html = `<h3 class="text-xl font-bold mb-4 ${coloreTesto}"><i class="fas ${icona} mr-2"></i>${titolo}</h3><div class="space-y-3">`;
-            lista.forEach(p => {
+        function stampaListaRisultati(container, listaMostrata, listaTotale, titolo, icona, coloreTesto) {
+            let htmlSelect = creaMenuFiltroGironi(listaTotale);
+
+            if(listaMostrata.length === 0) { 
+                container.innerHTML = htmlSelect + `<p class="text-gray-400 text-center py-8">Nessun risultato disponibile per questa selezione.</p>`; 
+                return; 
+            }
+
+            let html = htmlSelect + `<h3 class="text-xl font-bold mb-4 ${coloreTesto}"><i class="fas ${icona} mr-2"></i>${titolo}</h3><div class="space-y-3">`;
+            listaMostrata.forEach(p => {
                 const casaVince = p.puntiCasa > p.puntiFuori;
                 html += `<div class="bg-gray-700 p-3 rounded-lg flex flex-col justify-between gap-2">
                             <div class="text-center sm:text-left">
