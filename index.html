@@ -6,30 +6,8 @@
     <title>SPIN MOVE 2K26</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-gray-900 text-gray-100 font-sans min-h-screen flex flex-col">
-
-    <header class="bg-[#FF5100] shadow-md py-1.5 px-4">
-    <div class="max-w-7xl mx-auto flex items-center justify-center gap-0">
-        <img src="logo.png" alt="Spin Move Logo" class="h-16 md:h-24 w-auto object-contain -mr-3 md:-mr-5">
-        <h1 class="text-2xl md:text-3xl font-extrabold uppercase tracking-wider text-white whitespace-nowrap">
-            SPIN MOVE 2K26
-        </h1>
-    </div>
-</header>
-
-    <main class="flex-grow container mx-auto px-4 py-8 max-w-5xl">
-        
-        <div id="category-selection" class="hidden flex flex-col sm:flex-row gap-4 justify-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPIN MOVE 2K26</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts: Permanent Marker (Street Art) -->
+    <!-- Google Fonts: Permanent Marker -->
     <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans min-h-screen flex flex-col">
@@ -37,10 +15,7 @@
     <!-- HEADER BRANDING -->
     <header class="bg-[#FF5100] shadow-md py-2 px-4 overflow-hidden">
         <div class="max-w-7xl mx-auto flex items-center justify-center relative">
-            <!-- Logo Ingrandito e Sovrapposto -->
             <img src="logo.png" alt="Spin Move Logo" class="h-20 md:h-28 w-auto object-contain -mr-6 md:-mr-10 z-10 drop-shadow-md pointer-events-none">
-            
-            <!-- Titolo con Font Street Art -->
             <h1 class="text-3xl md:text-5xl uppercase tracking-wider text-white whitespace-nowrap z-0 pt-1 drop-shadow-md" style="font-family: 'Permanent Marker', cursive;">
                 SPIN MOVE 2K26
             </h1>
@@ -49,7 +24,8 @@
 
     <main class="flex-grow container mx-auto px-4 py-8 max-w-5xl">
         
-        <div id="category-selection" class="hidden flex flex-col sm:flex-row gap-4 justify-center items-center my-8">
+        <!-- SELEZIONE CATEGORIA (visibile di default) -->
+        <div id="category-selection" class="flex flex-col sm:flex-row gap-4 justify-center items-center my-8">
             <button onclick="selectCategory('maschile')" class="w-full sm:w-64 bg-orange-500 hover:bg-orange-400 text-white font-bold py-6 px-8 rounded-2xl shadow-lg transition-all text-xl uppercase tracking-wide flex flex-col items-center gap-2">
                 <i class="fas fa-mars text-3xl"></i> Torneo Maschile
             </button>
@@ -58,6 +34,7 @@
             </button>
         </div>
 
+        <!-- DASHBOARD TORNEO -->
         <div id="tournament-dashboard" class="hidden">
             <div class="flex justify-between items-center mb-6">
                 <button onclick="goBack()" class="text-gray-400 hover:text-white flex items-center gap-2 transition-colors">
@@ -137,7 +114,15 @@
                     document.getElementById('tournament-dashboard').classList.add('hidden');
                 }
             } catch (error) {
-                document.getElementById('section-content').innerHTML = `<p class="text-red-400 text-center">Errore nel caricamento. Verifica che il foglio sia pubblico e che le schede si chiamino "Maschile" e "Femminile".</p>`;
+                console.error("Errore caricamento dati:", error);
+                const savedCategory = localStorage.getItem('torneo_categoria');
+                if (savedCategory) {
+                    document.getElementById('category-selection').classList.add('hidden');
+                    document.getElementById('tournament-dashboard').classList.remove('hidden');
+                    document.getElementById('section-content').innerHTML = `<p class="text-red-400 text-center py-8">Errore nel caricamento dei dati.<br>Verifica che il Foglio Google sia pubblicato sul web e che i fogli si chiamino "Maschile" e "Femminile".</p>`;
+                } else {
+                    document.getElementById('category-selection').classList.remove('hidden');
+                }
             }
         }
 
