@@ -285,11 +285,8 @@
             if(lista.length === 0) { container.innerHTML = `<p class="text-gray-400 text-center py-8">Nessun match in questa sezione al momento.</p>`; return; }
             let html = `<h3 class="text-xl font-bold mb-4 ${coloreTesto}"><i class="fas ${icona} mr-2"></i>${titolo}</h3><div class="space-y-3">`;
             lista.forEach(p => {
-                // Unisce Girone, Turno, Campo e Orario nella stessa riga del badge scuro
-                let badgeDetails = `${p.girone.toUpperCase()} - ${p.turno}`;
-                if (p.campo) badgeDetails += ` - ${p.campo}`;
-                if (p.orario) badgeDetails += ` - ${p.orario}`;
-                if (p.data) badgeDetails += ` (${p.data})`;
+                let infoPrincipale = `${p.girone.toUpperCase()} - ${p.turno}`;
+                if (p.data) infoPrincipale += ` (${p.data})`;
 
                 const badgeColor = currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400';
                 const vsColor = currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400';
@@ -297,8 +294,12 @@
                 html += `<div class="bg-gray-700 p-3 rounded-lg flex flex-col justify-between gap-2">
                             <div class="text-center sm:text-left">
                                 <span class="text-[10px] sm:text-xs bg-gray-900 border border-gray-600 px-2 py-1 rounded text-gray-300 font-mono inline-block">
-                                    <b class="${badgeColor}">${badgeDetails}</b>
-                                </span>
+                                    <b class="${badgeColor}">${infoPrincipale}</b>`;
+                
+                if (p.campo) html += ` - <span class="text-white">${p.campo}</span>`;
+                if (p.orario) html += ` - <span class="text-white">${p.orario}</span>`;
+
+                html += `       </span>
                             </div>
                             <div class="flex items-center justify-between gap-2 text-sm sm:text-base bg-gray-850 px-3 py-2 rounded">
                                 <span class="text-left font-semibold text-gray-100 truncate flex-1">${p.casa}</span>
