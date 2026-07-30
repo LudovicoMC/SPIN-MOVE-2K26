@@ -224,7 +224,7 @@
 
             if (tabId === 'calendario') {
                 const daGiocare = filtrate.filter(p => !p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1'));
-                stampaListaPartite(container, daGiocare, "Prossime Partite", "fa-calendar-alt", "text-cyan-400");
+                stampaListaPartite(container, daGiocare, "Prossime Partite", "fa-calendar-alt", currentCategory === 'maschile' ? "text-cyan-400" : "text-pink-400");
                 
             } else if (tabId === 'risultati') {
                 const giocate = filtrate.filter(p => p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1'));
@@ -254,19 +254,22 @@
                 let infoAggiuntive = '';
                 if (p.orario || p.campo) {
                     infoAggiuntive = `<div class="text-sm text-gray-350 mt-1.5 flex flex-wrap gap-x-4 justify-center sm:justify-start font-medium">`;
-                    if (p.orario) infoAggiuntive += `<span><i class="far fa-clock text-sky-400 mr-1.5"></i>Ora: <b class="text-white">${p.orario}</b></span>`;
-                    if (p.campo) infoAggiuntive += `<span><i class="fas fa-map-marker-alt text-sky-400 mr-1.5"></i>Campo: <b class="text-white">${p.campo}</b></span>`;
+                    if (p.orario) infoAggiuntive += `<span><i class="far fa-clock ${currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400'} mr-1.5"></i>Ora: <b class="text-white">${p.orario}</b></span>`;
+                    if (p.campo) infoAggiuntive += `<span><i class="fas fa-map-marker-alt ${currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400'} mr-1.5"></i>Campo: <b class="text-white">${p.campo}</b></span>`;
                     infoAggiuntive += `</div>`;
                 }
 
+                const badgeColor = currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400';
+                const vsColor = currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400';
+
                 html += `<div class="bg-gray-700 p-3 sm:p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-3">
                             <div class="w-full sm:w-auto text-center sm:text-left">
-                                <span class="text-[11px] sm:text-xs bg-gray-900 border border-gray-600 px-2 py-1 rounded text-gray-300 font-mono inline-block whitespace-nowrap"><b class="text-sky-400">${p.girone.toUpperCase()}</b> - ${p.turno} - ${p.data}</span>
+                                <span class="text-[11px] sm:text-xs bg-gray-900 border border-gray-600 px-2 py-1 rounded text-gray-300 font-mono inline-block whitespace-nowrap"><b class="${badgeColor}">${p.girone.toUpperCase()}</b> - ${p.turno} - ${p.data}</span>
                                 ${infoAggiuntive}
                             </div>
                             <div class="flex items-center justify-center gap-2 sm:gap-4 text-base sm:text-xl w-full sm:w-auto">
                                 <span class="text-right flex-1 sm:flex-none font-semibold truncate max-w-[140px] sm:max-w-none text-gray-100">${p.casa}</span>
-                                <span class="text-sky-400 font-normal text-xs uppercase tracking-wider px-1 flex-shrink-0">vs</span>
+                                <span class="${vsColor} font-normal text-xs uppercase tracking-wider px-1 flex-shrink-0">vs</span>
                                 <span class="text-left flex-1 sm:flex-none font-semibold truncate max-w-[140px] sm:max-w-none text-gray-100">${p.fuori}</span>
                             </div>
                          </div>`;
@@ -545,17 +548,28 @@
                     let segnapostoFuori = "Da definire";
 
                     if (col.tipo === "quarti") {
-                        if (idx === 0) { segnapostoCasa = "1° Girone A"; segnapostoFuori = "2° Girone B"; }
-                        if (idx === 1) { segnapostoCasa = "1° Girone C"; segnapostoFuori = "2° Girone D"; }
-                        if (idx === 2) { segnapostoCasa = "1° Girone B"; segnapostoFuori = "2° Girone A"; }
-                        if (idx === 3) { segnapostoCasa = "1° Girone D"; segnapostoFuori = "2° Girone C"; }
-                    } else if (col.tipo === "semifinali") {
-                        if (quarti.length > 0) {
-                            if (idx === 0) { segnapostoCasa = "Vinc. Quarti 1"; segnapostoFuori = "Vinc. Quarti 2"; }
-                            if (idx === 1) { segnapostoCasa = "Vinc. Quarti 3"; segnapostoFuori = "Vinc. Quarti 4"; }
-                        } else {
+                        if (currentCategory === 'maschile') {
                             if (idx === 0) { segnapostoCasa = "1° Girone A"; segnapostoFuori = "2° Girone B"; }
-                            if (idx === 1) { segnapostoCasa = "1° Girone B"; segnapostoFuori = "2° Girone A"; }
+                            if (idx === 1) { segnapostoCasa = "1° Girone C"; segnapostoFuori = "2° Girone D"; }
+                            if (idx === 2) { segnapostoCasa = "1° Girone B"; segnapostoFuori = "2° Girone A"; }
+                            if (idx === 3) { segnapostoCasa = "1° Girone D"; segnapostoFuori = "2° Girone C"; }
+                        } else {
+                            // Gestione 7 squadre girone unico femminile (adattata ai quarti)
+                            if (idx === 0) { segnapostoCasa = "3° Girone Unico"; segnapostoFuori = "6° Girone Unico"; }
+                            if (idx === 1) { segnapostoCasa = "4° Girone Unico"; segnapostoFuori = "5° Girone Unico"; }
+                        }
+                    } else if (col.tipo === "semifinali") {
+                        if (currentCategory === 'maschile') {
+                            if (quarti.length > 0) {
+                                if (idx === 0) { segnapostoCasa = "Vinc. Quarti 1"; segnapostoFuori = "Vinc. Quarti 2"; }
+                                if (idx === 1) { segnapostoCasa = "Vinc. Quarti 3"; segnapostoFuori = "Vinc. Quarti 4"; }
+                            } else {
+                                if (idx === 0) { segnapostoCasa = "1° Girone A"; segnapostoFuori = "2° Girone B"; }
+                                if (idx === 1) { segnapostoCasa = "1° Girone B"; segnapostoFuori = "2° Girone A"; }
+                            }
+                        } else {
+                            if (idx === 0) { segnapostoCasa = "1° Girone Unico"; segnapostoFuori = "Vinc. Quarti 2"; }
+                            if (idx === 1) { segnapostoCasa = "2° Girone Unico"; segnapostoFuori = "Vinc. Quarti 1"; }
                         }
                     } else if (col.tipo === "finale") {
                         segnapostoCasa = "Vinc. Semi 1";
