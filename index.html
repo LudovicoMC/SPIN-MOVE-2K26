@@ -285,11 +285,10 @@
             if(lista.length === 0) { container.innerHTML = `<p class="text-gray-400 text-center py-8">Nessun match in questa sezione al momento.</p>`; return; }
             let html = `<h3 class="text-xl font-bold mb-4 ${coloreTesto}"><i class="fas ${icona} mr-2"></i>${titolo}</h3><div class="space-y-3">`;
             lista.forEach(p => {
-                // Costruiamo i dettagli dinamicamente evitando trattini vuoti se mancano campo o orario
                 let partiBadge = [`<b class="${currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400'}">${p.girone.toUpperCase()} - ${p.turno}</b>`];
                 
                 if (p.campo && p.campo.trim() !== '') {
-                    partiBadge.append ? partiBadge.push(`<span class="text-white">${p.campo}</span>`) : partiBadge.push(`<span class="text-white">${p.campo}</span>`);
+                    partiBadge.push(`<span class="text-white">${p.campo}</span>`);
                 }
                 if (p.orario && p.orario.trim() !== '') {
                     partiBadge.push(`<span class="text-white">${p.orario}</span>`);
@@ -318,41 +317,26 @@
             container.innerHTML = html + `</div>`;
         }
 
-        function stampaListaPartite(container, lista, titolo, icona, coloreTesto) {
-    if(lista.length === 0) { container.innerHTML = `<p class="text-gray-400 text-center py-8">Nessun match in questa sezione al momento.</p>`; return; }
-    let html = `<h3 class="text-xl font-bold mb-4 ${coloreTesto}"><i class="fas ${icona} mr-2"></i>${titolo}</h3><div class="space-y-3">`;
-    lista.forEach(p => {
-        let partiBadge = [`<b class="${currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400'}">${p.girone.toUpperCase()} - ${p.turno}</b>`];
-        
-        if (p.campo && p.campo.trim() !== '') {
-            partiBadge.push(`<span class="text-white">${p.campo}</span>`);
+        function stampaListaRisultati(container, lista, titolo, icona, coloreTesto) {
+            if(lista.length === 0) { container.innerHTML = `<p class="text-gray-400 text-center py-8">Nessun risultato disponibile.</p>`; return; }
+            let html = `<h3 class="text-xl font-bold mb-4 ${coloreTesto}"><i class="fas ${icona} mr-2"></i>${titolo}</h3><div class="space-y-3">`;
+            lista.forEach(p => {
+                const casaVince = p.puntiCasa > p.puntiFuori;
+                html += `<div class="bg-gray-700 p-3 rounded-lg flex flex-col justify-between gap-2">
+                            <div class="text-center sm:text-left">
+                                <span class="text-[10px] sm:text-xs bg-gray-900 border border-gray-600 px-2 py-1 rounded text-gray-300 font-mono inline-block">
+                                    ${p.girone.toUpperCase()} - ${p.turno}
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-between gap-2 text-sm sm:text-base bg-gray-850 px-3 py-2 rounded">
+                                <span class="text-left font-semibold truncate flex-1 ${casaVince ? 'text-green-400 font-bold' : 'text-gray-300'}">${p.casa}</span>
+                                <span class="bg-gray-900 px-3 py-1 rounded font-mono font-bold text-white text-sm border border-gray-700">${p.puntiCasa} - ${p.puntiFuori}</span>
+                                <span class="text-right font-semibold truncate flex-1 ${!casaVince ? 'text-green-400 font-bold' : 'text-gray-300'}">${p.fuori}</span>
+                            </div>
+                         </div>`;
+            });
+            container.innerHTML = html + `</div>`;
         }
-        if (p.orario && p.orario.trim() !== '') {
-            partiBadge.push(`<span class="text-white">${p.orario}</span>`);
-        }
-        
-        let badgeDetails = partiBadge.join(' - ');
-        if (p.data && p.data.trim() !== '') {
-            badgeDetails += ` (${p.data})`;
-        }
-
-        const vsColor = currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400';
-
-        html += `<div class="bg-gray-700 p-3 rounded-lg flex flex-col justify-between gap-2">
-                    <div class="text-center sm:text-left">
-                        <span class="text-[10px] sm:text-xs bg-gray-900 border border-gray-600 px-2 py-1 rounded text-gray-300 font-mono inline-block">
-                            ${badgeDetails}
-                        </span>
-                    </div>
-                    <div class="flex items-center justify-between gap-2 text-sm sm:text-base bg-gray-850 px-3 py-2 rounded">
-                        <span class="text-left font-semibold text-gray-100 truncate flex-1">${p.casa}</span>
-                        <span class="${vsColor} font-bold text-xs uppercase px-2 flex-shrink-0">vs</span>
-                        <span class="text-right font-semibold text-gray-100 truncate flex-1">${p.fuori}</span>
-                    </div>
-                 </div>`;
-    });
-    container.innerHTML = html + `</div>`;
-}
 
         function calcolaEMostraClassifica(container, tutteLePartite) {
             let gironi = {};
@@ -598,10 +582,10 @@
 
                     if (col.tipo === "quarti") {
                         if (currentCategory === 'maschile') {
-                            if (idx === 0) { segnapostoCasa = "1° Girone A"; segnapostoFuori = "2° Girone B"; }
-                            if (idx === 1) { segnapostoCasa = "1° Girone C"; segnapostoFuori = "2° Girone D"; }
-                            if (idx === 2) { segnapostoCasa = "1° Girone B"; segnapostoFuori = "2° Girone A"; }
-                            if (idx === 3) { segnapostoCasa = "1° Girone D"; segnapostoFuori = "2° Girone C"; }
+                            if (idx === 0) { segnapostoCasa = "1° Girone A"; segnapostoFuori = "4° Girone B"; }
+                            if (idx === 1) { segnapostoCasa = "2° Girone B"; segnapostoFuori = "3° Girone A"; }
+                            if (idx === 2) { segnapostoCasa = "1° Girone B"; segnapostoFuori = "4° Girone A"; }
+                            if (idx === 3) { segnapostoCasa = "2° Girone A"; segnapostoFuori = "3° Girone B"; }
                         } else {
                             if (idx === 0) { segnapostoCasa = "3° Girone Unico"; segnapostoFuori = "6° Girone Unico"; }
                             if (idx === 1) { segnapostoCasa = "4° Girone Unico"; segnapostoFuori = "5° Girone Unico"; }
@@ -616,8 +600,8 @@
                                 if (idx === 1) { segnapostoCasa = "1° Girone B"; segnapostoFuori = "2° Girone A"; }
                             }
                         } else {
-                            if (idx === 0) { segnapostoCasa = "1° Girone Unico"; segnapostoFuori = "4° Girone Unico"; }
-                            if (idx === 1) { segnapostoCasa = "2° Girone Unico"; segnapostoFuori = "3° Girone Unico"; }
+                            if (idx === 0) { segnapostoCasa = "1° Girone Unico"; segnapostoFuori = "Vinc. Quarti 1"; }
+                            if (idx === 1) { segnapostoCasa = "2° Girone Unico"; segnapostoFuori = "Vinc. Quarti 2"; }
                         }
                     } else if (col.tipo === "finale") {
                         segnapostoCasa = "Vinc. Semi 1";
@@ -702,18 +686,13 @@
                     let segnapostoFuori = "Da definire";
 
                     if (col.tipo === "preliminari") {
-                        if (idx === 0) { segnapostoCasa = "3° Girone A"; segnapostoFuori = "4° Girone B"; }
-                        if (idx === 1) { segnapostoCasa = "3° Girone C"; segnapostoFuori = "4° Girone D"; }
-                        if (idx === 2) { segnapostoCasa = "3° Girone B"; segnapostoFuori = "4° Girone A"; }
-                        if (idx === 3) { segnapostoCasa = "3° Girone D"; segnapostoFuori = "4° Girone C"; }
+                        if (idx === 0) { segnapostoCasa = "5° Girone B"; segnapostoFuori = "6° Girone B"; }
+                        if (idx === 1) { segnapostoCasa = "5° Girone A"; segnapostoFuori = "7° Girone B"; }
                     } else if (col.tipo === "quarti") {
-                        if (preliminari.length > 0) {
-                            segnapostoCasa = `Vinc. Preliminare ${idx + 1}`;
-                            segnapostoFuori = `Perd. Quarti Playoff ${idx + 1}`;
-                        } else {
-                            segnapostoCasa = "Da definire";
-                            segnapostoFuori = "Da definire";
-                        }
+                        if (idx === 0) { segnapostoCasa = "Perd. Quarti 1"; segnapostoFuori = "Perd. Quarti 2"; }
+                        if (idx === 1) { segnapostoCasa = "Perd. Quarti 3"; segnapostoFuori = "Perd. Quarti 4"; }
+                        if (idx === 2) { segnapostoCasa = "6° Girone A"; segnapostoFuori = "Vinc. Preliminare 1"; }
+                        if (idx === 3) { segnapostoCasa = "Vinc. Preliminare 2"; segnapostoFuori = "Da definire"; }
                     } else if (col.tipo === "semifinali") {
                         segnapostoCasa = `Vinc. Quarti Barilotto ${idx * 2 + 1}`;
                         segnapostoFuori = `Vinc. Quarti Barilotto ${idx * 2 + 2}`;
