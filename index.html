@@ -28,7 +28,8 @@
         
         <!-- SELEZIONE CATEGORIA (visibile di default) -->
         <div id="category-selection" class="flex flex-col sm:flex-row gap-4 justify-center items-center my-8">
-            <button onclick="selectCategory('maschile')" class="w-full sm:w-64 bg-orange-500 hover:bg-orange-400 text-white font-bold py-6 px-8 rounded-2xl shadow-lg transition-all text-xl uppercase tracking-wide flex flex-col items-center gap-2">
+            <!-- PULSANTE TORNEO MASCHILE IMPOSTATO IN AZZURRO -->
+            <button onclick="selectCategory('maschile')" class="w-full sm:w-64 bg-sky-500 hover:bg-sky-400 text-white font-bold py-6 px-8 rounded-2xl shadow-lg transition-all text-xl uppercase tracking-wide flex flex-col items-center gap-2">
                 <i class="fas fa-mars text-3xl"></i> Torneo Maschile
             </button>
             <button onclick="selectCategory('femminile')" class="w-full sm:w-64 bg-pink-600 hover:bg-pink-500 text-white font-bold py-6 px-8 rounded-2xl shadow-lg transition-all text-xl uppercase tracking-wide flex flex-col items-center gap-2">
@@ -163,7 +164,7 @@
             
             const titleElement = document.getElementById('dashboard-title');
             titleElement.innerText = category === 'maschile' ? 'Torneo Maschile' : 'Torneo Femminile';
-            titleElement.className = category === 'maschile' ? 'text-2xl font-bold border-b border-gray-700 pb-3 mb-6 text-orange-400' : 'text-2xl font-bold border-b border-gray-700 pb-3 mb-6 text-pink-500';
+            titleElement.className = category === 'maschile' ? 'text-2xl font-bold border-b border-gray-700 pb-3 mb-6 text-sky-400' : 'text-2xl font-bold border-b border-gray-700 pb-3 mb-6 text-pink-500';
 
             renderButtons();
             
@@ -211,7 +212,7 @@
 
             const activeBtn = document.getElementById(`btn-${tabId}`);
             if (activeBtn) {
-                const colorClass = currentCategory === 'maschile' ? 'border-orange-500 bg-orange-600' : 'border-pink-500 bg-pink-600';
+                const colorClass = currentCategory === 'maschile' ? 'border-sky-500 bg-sky-600' : 'border-pink-500 bg-pink-600';
                 activeBtn.className = `flex flex-col items-center justify-center p-3 rounded-xl font-bold text-sm border ${colorClass} text-white shadow-lg`;
             }
             renderContent(tabId);
@@ -223,7 +224,7 @@
 
             if (tabId === 'calendario') {
                 const daGiocare = filtrate.filter(p => !p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1'));
-                stampaListaPartite(container, daGiocare, "Prossime Partite in Calendario", "fa-calendar-alt", "text-orange-400");
+                stampaListaPartite(container, daGiocare, "Prossime Partite in Calendario", "fa-calendar-alt", "text-sky-400");
                 
             } else if (tabId === 'risultati') {
                 const giocate = filtrate.filter(p => p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1'));
@@ -253,19 +254,19 @@
                 let infoAggiuntive = '';
                 if (p.orario || p.campo) {
                     infoAggiuntive = `<div class="text-sm text-gray-350 mt-1.5 flex flex-wrap gap-x-4 justify-center sm:justify-start font-medium">`;
-                    if (p.orario) infoAggiuntive += `<span><i class="far fa-clock text-orange-400 mr-1.5"></i>Ora: <b class="text-white">${p.orario}</b></span>`;
-                    if (p.campo) infoAggiuntive += `<span><i class="fas fa-map-marker-alt text-orange-400 mr-1.5"></i>Campo: <b class="text-white">${p.campo}</b></span>`;
+                    if (p.orario) infoAggiuntive += `<span><i class="far fa-clock text-sky-400 mr-1.5"></i>Ora: <b class="text-white">${p.orario}</b></span>`;
+                    if (p.campo) infoAggiuntive += `<span><i class="fas fa-map-marker-alt text-sky-400 mr-1.5"></i>Campo: <b class="text-white">${p.campo}</b></span>`;
                     infoAggiuntive += `</div>`;
                 }
 
                 html += `<div class="bg-gray-700 p-3 sm:p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-3">
                             <div class="w-full sm:w-auto text-center sm:text-left">
-                                <span class="text-xs bg-gray-900 border border-gray-600 px-2 py-1 rounded text-gray-300 font-mono inline-block"><b class="text-orange-400">${p.girone.toUpperCase()}</b> - ${p.turno} - ${p.data}</span>
+                                <span class="text-xs bg-gray-900 border border-gray-600 px-2 py-1 rounded text-gray-300 font-mono inline-block"><b class="text-sky-400">${p.girone.toUpperCase()}</b> - ${p.turno} - ${p.data}</span>
                                 ${infoAggiuntive}
                             </div>
                             <div class="flex items-center justify-center gap-2 sm:gap-4 text-base sm:text-xl w-full sm:w-auto">
                                 <span class="text-right flex-1 sm:flex-none font-semibold truncate max-w-[140px] sm:max-w-none text-gray-100">${p.casa}</span>
-                                <span class="text-orange-500 font-normal text-xs uppercase tracking-wider px-1 flex-shrink-0">vs</span>
+                                <span class="text-sky-400 font-normal text-xs uppercase tracking-wider px-1 flex-shrink-0">vs</span>
                                 <span class="text-left flex-1 sm:flex-none font-semibold truncate max-w-[140px] sm:max-w-none text-gray-100">${p.fuori}</span>
                             </div>
                          </div>`;
@@ -348,7 +349,7 @@
                     return (b.fatti - b.subiti) - (a.fatti - a.subiti);
                 });
 
-                const colorGirone = currentCategory === 'maschile' ? 'text-orange-400' : 'text-pink-500';
+                const colorGirone = currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-500';
 
                 html += `<div class="mb-8 bg-gray-850 p-4 rounded-xl border border-gray-700 shadow-lg">
                             <h4 class="text-lg font-bold mb-3 ${colorGirone} border-b border-gray-700 pb-1 uppercase tracking-wider">${gNome}</h4>
@@ -534,7 +535,7 @@
             html += `<div class="flex flex-col md:flex-row gap-6 items-stretch pb-4 pt-2">`;
 
             colonne.forEach(col => {
-                const colorTitle = currentCategory === 'maschile' ? 'text-orange-400' : 'text-pink-500';
+                const colorTitle = currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-500';
                 html += `<div class="flex-1 min-w-[250px] bg-gray-850 p-4 rounded-xl border border-gray-700 flex flex-col">
                             <h4 class="text-sm font-extrabold ${colorTitle} uppercase tracking-wider text-center border-b border-gray-700 pb-2 mb-4 font-mono">${col.nome}</h4>
                             <div class="flex flex-col justify-around flex-grow gap-4">`;
