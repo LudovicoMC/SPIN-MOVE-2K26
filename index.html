@@ -101,6 +101,7 @@
         const GOOGLE_SHEET_ID = '1YYP6YIkMWEwkhPOiU5EaYoGdMl86cuz0aaJ5VjqFlEA'; 
 
         let DATA_PARTITE = [];
+        let INFO_KING = { maschile: '', femminile: '' };
         let currentCategory = '';
         let currentTab = 'calendario';
         let filtroGironeAttivo = 'tutti';
@@ -139,10 +140,12 @@
                 const textM = await resM.text();
                 const textF = await resF.text();
 
-                const datiMaschile = parseCSV(textM, 'maschile');
-                const datiFemminile = parseCSV(textF, 'femminile');
+                const parsedM = parseCSV(textM, 'maschile');
+                const parsedF = parseCSV(textF, 'femminile');
 
-                DATA_PARTITE = [...datiMaschile, ...datiFemminile];
+                DATA_PARTITE = [...parsedM.data, ...parsedF.data];
+                INFO_KING.maschile = parsedM.infoKing;
+                INFO_KING.femminile = parsedF.infoKing;
                 
                 const savedCategory = localStorage.getItem('torneo_categoria');
                 if (savedCategory) {
@@ -167,11 +170,23 @@
         function parseCSV(text, categoria) {
             const lines = text.split('\n');
             const data = [];
-            for (let i = 1; i < lines.length; i++) {
+            let infoKingText = '';
+
+            const cellaTargetIndex = categoria === 'maschile' ? 79 : 44; // Riga 80 per maschile, 45 per femminile (0-indexed)
+
+            for (let i = 0; i < lines.length; i++) {
                 let line = lines[i].trim();
                 if (!line) continue;
-                const cols = line.replace(/"/g, '').split(',');
-                if (cols.length >= 8) {
+                
+                // Pulisce le virgolette dal CSV
+                const cols = line.split(',').map(c => c.replace(/^"|"$/g, '').trim());
+
+                // Controlla se siamo alla riga desiderata per l'info extra (Colonna A)
+                if (i === cellaTargetIndex && cols[0]) {
+                    infoKingText = cols[0];
+                }
+
+                if (i > 0 && cols.length >= 8) {
                     data.push({
                         categoria: categoria,
                         girone: cols[0].trim(),
@@ -187,7 +202,7 @@
                     });
                 }
             }
-            return data;
+            return { data, infoKing: infoKingText };
         }
 
         function selectCategory(category, isRestoring = false) {
@@ -469,9 +484,14 @@
             let matchValidi = matchValiviRaw.filter(p => p.casa.trim() !== "" || p.fuori.trim() !== "" || p.giocata);
 
             const titoloKing = currentCategory === 'femminile' ? 'Queen of the Court 1v1' : 'King of the Court 1v1';
+            const didascalia = INFO_KING[currentCategory] ? `<p class="text-sm text-gray-300 mt-1 mb-4 italic font-sans">${INFO_KING[currentCategory]}</p>` : '';
 
             if(matchValidi.length === 0) { 
-                container.innerHTML = `<h3 class="text-xl font-bold mb-4 text-purple-400"><i class="fas fa-medal mr-2"></i>${titoloKing}</h3><p class="text-gray-400 text-center py-8">In attesa dell'inserimento delle sfide 1v1 nel foglio.</p>`; 
+                container.innerHTML = `<div class="mb-4">
+                                            <h3 class="text-xl font-bold text-purple-400 flex items-center gap-2"><i class="fas fa-medal"></i> ${titoloKing}</h3>
+                                            ${didascalia}
+                                        </div>
+                                        <p class="text-gray-400 text-center py-8">In attesa dell'inserimento delle sfide 1v1 nel foglio.</p>`; 
                 return; 
             }
 
@@ -550,6 +570,7 @@
 
             let html = `<div class="mb-4">
                             <h3 class="text-xl font-bold text-purple-400 flex items-center gap-2"><i class="fas fa-medal"></i> ${titoloKing}</h3>
+                            ${didascalia}
                         </div>`;
             
             html += `<div class="bracket-container flex flex-col md:flex-row gap-6 pb-4 pt-2">`;
