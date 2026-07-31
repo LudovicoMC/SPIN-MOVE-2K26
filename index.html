@@ -398,11 +398,11 @@
             </div>
 
             <h3 class="text-xl font-bold mb-4 text-amber-500 flex items-center justify-center gap-2 text-center">
-                <i class="fas fa-bullseye"></i> Fase di Qualificazione 3PT (${filtro3PointSesso === 'maschile' ? : })
+                <i class="fas fa-bullseye"></i> Fase di Qualificazione 3PT
             </h3>`;
 
             if (filtratiPerSesso.length === 0) {
-                html += `<p class="text-gray-400 text-center py-8">.<br><span class="text-xs text-gray-500"></span></p>`;
+                html += `<p class="text-gray-400 text-center py-8">Nessun punteggio ancora registrato per questa categoria.<br><span class="text-xs text-gray-500">I punteggi inseriti nel foglio compariranno qui in ordine di classifica.</span></p>`;
             } else {
                 html += `
                 <div class="bg-gray-850 rounded-xl border border-gray-700 shadow-lg">
@@ -464,7 +464,7 @@
             </div>
             <div class="mb-4">
                 <h3 class="text-xl font-bold text-amber-500 mb-1 flex items-center justify-center gap-2 text-center">
-                    <i class="fas fa-sitemap"></i> Fase Finale 3PT (${filtro3PointSesso === 'maschile' ? 'Maschile' : 'Femminile'})
+                    <i class="fas fa-sitemap"></i> Fase Finale 3PT
                 </h3>
                 ${didascalia3pt}
             </div>`;
