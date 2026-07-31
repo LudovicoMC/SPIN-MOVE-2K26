@@ -398,14 +398,14 @@
                 html += `<p class="text-gray-400 text-center py-8">Nessun punteggio inserito per le qualificazioni.<br><span class="text-xs text-gray-500">Nota: Inserisci le righe nel foglio con Girone = "3PT" e Giocata = "SI".</span></p>`;
             } else {
                 html += `
-                <div class="bg-gray-850 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
-                    <table class="w-full text-left border-collapse">
+                <div class="bg-gray-850 rounded-xl border border-gray-700 overflow-x-auto shadow-lg">
+                    <table class="w-full text-left border-collapse min-w-[320px]">
                         <thead>
                             <tr class="bg-gray-900 border-b border-gray-700 text-gray-400 text-xs uppercase">
-                                <th class="py-3 px-4 w-12 text-center">Pos</th>
-                                <th class="py-3 px-4">Tiratore</th>
-                                <th class="py-3 px-4 text-center w-28">Punteggio</th>
-                                <th class="py-3 px-4 text-center w-32">Stato</th>
+                                <th class="py-3 px-3 sm:px-4 w-12 text-center">Pos</th>
+                                <th class="py-3 px-3 sm:px-4">Tiratore</th>
+                                <th class="py-3 px-3 sm:px-4 text-center w-24 sm:w-28">Punti</th>
+                                <th class="py-3 px-3 sm:px-4 text-center w-36">Stato</th>
                             </tr>
                         </thead>
                         <tbody>`;
@@ -415,15 +415,19 @@
                     const qualificato = pos <= sogliaPassaggio;
                     
                     let statusBadge = qualificato 
-                        ? `<span class="bg-emerald-900/60 text-emerald-400 border border-emerald-500/40 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase"><i class="fas fa-check mr-1"></i> Qualificato</span>`
-                        : `<span class="bg-rose-900/40 text-rose-400 border border-rose-500/30 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase">Eliminato</span>`;
+                        ? `<span class="inline-flex items-center justify-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider whitespace-nowrap shadow-sm">
+                            <i class="fas fa-check text-[10px]"></i> Qualificato
+                           </span>`
+                        : `<span class="inline-flex items-center justify-center gap-1.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider whitespace-nowrap opacity-75">
+                            <i class="fas fa-times text-[10px]"></i> Eliminato
+                           </span>`;
 
                     html += `
-                    <tr class="border-b border-gray-800 hover:bg-gray-750 transition-colors ${qualificato ? 'bg-emerald-950/10' : ''}">
-                        <td class="py-3 px-4 text-center font-bold text-sm ${qualificato ? 'text-emerald-400' : 'text-gray-500'}">${pos}</td>
-                        <td class="py-3 px-4 font-semibold text-gray-100">${p.nome}</td>
-                        <td class="py-3 px-4 text-center font-mono font-bold text-amber-400 text-lg bg-gray-900/40">${p.punteggio}</td>
-                        <td class="py-3 px-4 text-center">${statusBadge}</td>
+                    <tr class="border-b border-gray-800 hover:bg-gray-750 transition-colors ${qualificato ? 'bg-emerald-950/20' : ''}">
+                        <td class="py-3 px-3 sm:px-4 text-center font-bold text-sm ${qualificato ? 'text-emerald-400' : 'text-gray-500'}">${pos}</td>
+                        <td class="py-3 px-3 sm:px-4 font-semibold text-gray-100 text-sm sm:text-base">${p.nome}</td>
+                        <td class="py-3 px-3 sm:px-4 text-center font-mono font-extrabold text-amber-400 text-lg bg-gray-900/30">${p.punteggio}</td>
+                        <td class="py-3 px-3 sm:px-4 text-center">${statusBadge}</td>
                     </tr>`;
                 });
 
@@ -787,7 +791,7 @@
                                     ${m.giocata ? `<span class="font-mono font-bold text-sm ${casaVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
                                 </div>
                                 <div class="flex justify-between items-center px-3 py-2 ${fuoriVincente ? 'bg-purple-600/10' : ''}">
-                                    <span class="team-name text-sm ${m.giocata ? (fuoriVincente ? 'font-bold text-purple-300' : 'text-gray-500 line-through') : (m.fuori === 'Da definire' ? 'text-gray-500 italic' : 'text-gray-100 font-semibold')}">
+                                    <span class="team-name text-sm ${m.giocata ? (fuoriVincente ? 'font-bold text-purple-300' : 'text-gray-500 line-through') : (m.fuori === 'Da definire' ? 'text-gray-500 italic' : 'text-gray-400 italic text-xs')}">
                                         ${fuoriVincente ? '👑 ' : ''}${m.fuori}
                                     </span>
                                     ${m.giocata ? `<span class="font-mono font-bold text-sm ${fuoriVincente ? 'text-yellow-400' : 'text-gray-400'}">${m.puntiFuori}</span>` : ''}
