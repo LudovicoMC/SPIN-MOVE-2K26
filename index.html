@@ -61,21 +61,28 @@
 
     <main class="flex-grow container mx-auto px-4 py-8 max-w-5xl">
         
-        <!-- SELEZIONE CATEGORIA -->
-        <div id="category-selection" class="flex flex-col sm:flex-row gap-4 justify-center items-center my-8">
-            <button onclick="selectCategory('maschile')" class="w-full sm:w-64 bg-blue-700 hover:bg-blue-600 text-white font-bold py-6 px-8 rounded-2xl shadow-lg transition-all text-xl uppercase tracking-wide flex flex-col items-center gap-2">
-                <i class="fas fa-mars text-3xl"></i> Torneo Maschile
-            </button>
-            <button onclick="selectCategory('femminile')" class="w-full sm:w-64 bg-pink-600 hover:bg-pink-500 text-white font-bold py-6 px-8 rounded-2xl shadow-lg transition-all text-xl uppercase tracking-wide flex flex-col items-center gap-2">
-                <i class="fas fa-venus text-3xl"></i> Torneo Femminile
+        <!-- SELEZIONE CATEGORIA E CONTEST -->
+        <div id="category-selection" class="flex flex-col items-center gap-6 my-8">
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-2xl">
+                <button onclick="selectCategory('maschile')" class="w-full sm:w-1/2 bg-blue-700 hover:bg-blue-600 text-white font-bold py-6 px-8 rounded-2xl shadow-lg transition-all text-xl uppercase tracking-wide flex flex-col items-center gap-2">
+                    <i class="fas fa-mars text-3xl"></i> Torneo Maschile
+                </button>
+                <button onclick="selectCategory('femminile')" class="w-full sm:w-1/2 bg-pink-600 hover:bg-pink-500 text-white font-bold py-6 px-8 rounded-2xl shadow-lg transition-all text-xl uppercase tracking-wide flex flex-col items-center gap-2">
+                    <i class="fas fa-venus text-3xl"></i> Torneo Femminile
+                </button>
+            </div>
+            
+            <!-- TASTO 3 POINT CONTEST -->
+            <button onclick="selectCategory('threepoint')" class="w-full max-w-2xl bg-amber-600 hover:bg-amber-500 text-white font-bold py-5 px-8 rounded-2xl shadow-lg transition-all text-xl uppercase tracking-wide flex items-center justify-center gap-3 border-2 border-amber-400/30">
+                <i class="fas fa-bullseye text-3xl"></i> 3 Point Contest
             </button>
         </div>
 
-        <!-- DASHBOARD TORNEO -->
+        <!-- DASHBOARD TORNEO / CONTEST -->
         <div id="tournament-dashboard" class="hidden">
             <div class="flex justify-between items-center mb-6">
                 <button onclick="goBack()" class="text-gray-400 hover:text-white flex items-center gap-2 transition-colors">
-                    <i class="fas fa-arrow-left"></i> Cambia Categoria
+                    <i class="fas fa-arrow-left"></i> Torna alla Home
                 </button>
                 <button onclick="caricaDatiDalFoglio()" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 px-3 py-1.5 rounded-lg border border-gray-700 flex items-center gap-1 transition-colors">
                     <i class="fas fa-sync-alt"></i> Aggiorna Dati
@@ -105,6 +112,7 @@
         let currentCategory = '';
         let currentTab = 'calendario';
         let filtroGironeAttivo = 'tutti';
+        let filtro3PointSesso = 'maschile';
 
         const sectionsConfig = {
             maschile: [
@@ -121,6 +129,9 @@
                 { id: 'classifica', label: 'Classifiche Gironi', icon: 'fa-trophy' },
                 { id: 'king', label: 'Queen of the Court', icon: 'fa-medal' },
                 { id: 'playoff', label: 'Playoff', icon: 'fa-crown' }
+            ],
+            threepoint: [
+                { id: '3point_leaderboard', label: 'Classifica 3 Point', icon: 'fa-trophy' }
             ]
         };
 
@@ -172,19 +183,15 @@
             const data = [];
             let infoKingText = '';
 
-            // Riga 2 (indice 1 in 0-indexed) per entrambe le categorie
             const rigaTargetIndex = 1; 
-            // Colonna L (indice 11) per maschile, Colonna P (indice 15) per femminile
             const colonnaTargetIndex = categoria === 'maschile' ? 11 : 15;
 
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i].trim();
                 if (!line) continue;
                 
-                // Pulisce le virgolette dal CSV
                 const cols = line.split(',').map(c => c.replace(/^"|"$/g, '').trim());
 
-                // Controlla la cella L2 (maschile) o P2 (femminile)
                 if (i === rigaTargetIndex && cols.length > colonnaTargetIndex) {
                     infoKingText = cols[colonnaTargetIndex];
                 }
@@ -216,17 +223,25 @@
             document.getElementById('tournament-dashboard').classList.remove('hidden');
             
             const titleElement = document.getElementById('dashboard-title');
-            titleElement.innerText = category === 'maschile' ? 'Torneo Maschile' : 'Torneo Femminile';
-            titleElement.className = category === 'maschile' ? 'text-2xl font-bold border-b border-gray-700 pb-3 mb-6 text-sky-400' : 'text-2xl font-bold border-b border-gray-700 pb-3 mb-6 text-pink-500';
+            if(category === 'maschile') {
+                titleElement.innerText = 'Torneo Maschile';
+                titleElement.className = 'text-2xl font-bold border-b border-gray-700 pb-3 mb-6 text-sky-400';
+            } else if(category === 'femminile') {
+                titleElement.innerText = 'Torneo Femminile';
+                titleElement.className = 'text-2xl font-bold border-b border-gray-700 pb-3 mb-6 text-pink-500';
+            } else {
+                titleElement.innerText = '3 Point Contest';
+                titleElement.className = 'text-2xl font-bold border-b border-gray-700 pb-3 mb-6 text-amber-500';
+            }
 
             renderButtons();
             
             if (isRestoring) {
-                const savedTab = localStorage.getItem('torneo_tab') || 'calendario';
+                const savedTab = localStorage.getItem('torneo_tab') || (category === 'threepoint' ? '3point_leaderboard' : 'calendario');
                 const tabExists = sectionsConfig[category].some(sec => sec.id === savedTab);
-                switchTab(tabExists ? savedTab : 'calendario');
+                switchTab(tabExists ? savedTab : sectionsConfig[category][0].id);
             } else {
-                switchTab('calendario');
+                switchTab(sectionsConfig[category][0].id);
             }
         }
 
@@ -265,7 +280,9 @@
 
             const activeBtn = document.getElementById(`btn-${tabId}`);
             if (activeBtn) {
-                const colorClass = currentCategory === 'maschile' ? 'border-sky-500 bg-sky-600' : 'border-pink-500 bg-pink-600';
+                let colorClass = 'border-amber-500 bg-amber-600';
+                if (currentCategory === 'maschile') colorClass = 'border-sky-500 bg-sky-600';
+                if (currentCategory === 'femminile') colorClass = 'border-pink-500 bg-pink-600';
                 activeBtn.className = `flex flex-col items-center justify-center p-3 rounded-xl font-bold text-sm border ${colorClass} text-white shadow-lg`;
             }
             renderContent(tabId);
@@ -276,9 +293,13 @@
             renderContent(currentTab);
         }
 
+        function cambiaFiltro3Point(sesso) {
+            filtro3PointSesso = sesso;
+            renderContent('3point_leaderboard');
+        }
+
         function creaMenuFiltroGironi(listaPartite) {
             let gironiUnici = [...new Set(listaPartite.map(p => p.girone.toUpperCase().trim()))].sort();
-            
             if (gironiUnici.length <= 1) return '';
 
             let html = `
@@ -299,26 +320,28 @@
 
         function renderContent(tabId) {
             const container = document.getElementById('section-content');
+
+            if (tabId === '3point_leaderboard') {
+                stampaSezione3Point(container);
+                return;
+            }
+
             const filtrate = DATA_PARTITE.filter(p => p.categoria === currentCategory);
 
             if (tabId === 'calendario') {
-                const daGiocare = filtrate.filter(p => !p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1'));
-                
+                const daGiocare = filtrate.filter(p => !p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1') && !p.girone.toLowerCase().trim().includes('3pt'));
                 let listeFiltrata = daGiocare;
                 if (filtroGironeAttivo !== 'tutti') {
                     listeFiltrata = daGiocare.filter(p => p.girone.toUpperCase().trim() === filtroGironeAttivo);
                 }
-
                 stampaListaPartite(container, listeFiltrata, daGiocare, "Prossime Partite", "fa-calendar-alt", currentCategory === 'maschile' ? "text-cyan-400" : "text-pink-400");
                 
             } else if (tabId === 'risultati') {
-                const giocate = filtrate.filter(p => p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1'));
-                
+                const giocate = filtrate.filter(p => p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1') && !p.girone.toLowerCase().trim().includes('3pt'));
                 let listeFiltrata = giocate;
                 if (filtroGironeAttivo !== 'tutti') {
                     listeFiltrata = giocate.filter(p => p.girone.toUpperCase().trim() === filtroGironeAttivo);
                 }
-
                 stampaListaRisultati(container, listeFiltrata, giocate, "Risultati Incontri", "fa-list-ol", "text-green-400");
 
             } else if (tabId === 'barilotto') {
@@ -338,9 +361,81 @@
             }
         }
 
+        function stampaSezione3Point(container) {
+            const partecipanti = [];
+
+            // Cerca tutte le righe del foglio dove il girone è "3PT" o il turno contiene "3POINT"
+            DATA_PARTITE.forEach(p => {
+                const e3point = p.girone.toUpperCase().trim().includes('3PT') || p.turno.toUpperCase().trim().includes('3POINT');
+                if (e3point) {
+                    if (p.casa && p.casa.trim() !== '') {
+                        partecipanti.push({ nome: p.casa, punteggio: p.puntiCasa, categoria: p.categoria });
+                    }
+                    if (p.fuori && p.fuori.trim() !== '') {
+                        partecipanti.push({ nome: p.fuori, punteggio: p.puntiFuori, categoria: p.categoria });
+                    }
+                }
+            });
+
+            const filtratiPerSesso = partecipanti.filter(p => p.categoria === filtro3PointSesso);
+
+            // Ordina dal punteggio più alto al più basso
+            filtratiPerSesso.sort((a, b) => b.punteggio - a.punteggio);
+
+            let html = `
+            <div class="mb-6 flex justify-center gap-3">
+                <button onclick="cambiaFiltro3Point('maschile')" class="px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-2 ${filtro3PointSesso === 'maschile' ? 'bg-sky-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
+                    <i class="fas fa-mars"></i> Maschile
+                </button>
+                <button onclick="cambiaFiltro3Point('femminile')" class="px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-2 ${filtro3PointSesso === 'femminile' ? 'bg-pink-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
+                    <i class="fas fa-venus"></i> Femminile
+                </button>
+            </div>
+
+            <h3 class="text-xl font-bold mb-4 text-amber-500 flex items-center justify-center gap-2">
+                <i class="fas fa-bullseye"></i> Classifica 3 Point Contest (${filtro3PointSesso === 'maschile' ? 'Maschile' : 'Femminile'})
+            </h3>`;
+
+            if (filtratiPerSesso.length === 0) {
+                html += `<p class="text-gray-400 text-center py-8">Nessun punteggio inserito per il 3 Point Contest.<br><span class="text-xs text-gray-500">Nota: Inserisci le righe con girone "3PT" nel foglio Google.</span></p>`;
+            } else {
+                html += `
+                <div class="bg-gray-850 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-900 border-b border-gray-700 text-gray-400 text-xs uppercase">
+                                <th class="py-3 px-4 w-12 text-center">Pos</th>
+                                <th class="py-3 px-4">Giocatore / Tiratore</th>
+                                <th class="py-3 px-4 text-center w-24">Punti</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+                filtratiPerSesso.forEach((p, idx) => {
+                    let medal = `<span class="text-gray-500 font-bold">${idx + 1}</span>`;
+                    if (idx === 0) medal = '🥇';
+                    if (idx === 1) medal = '🥈';
+                    if (idx === 2) medal = '🥉';
+
+                    html += `
+                    <tr class="border-b border-gray-800 hover:bg-gray-750 transition-colors">
+                        <td class="py-3 px-4 text-center font-bold text-lg">${medal}</td>
+                        <td class="py-3 px-4 font-semibold text-gray-100">${p.nome}</td>
+                        <td class="py-3 px-4 text-center font-mono font-bold text-amber-400 text-lg bg-gray-900/40">${p.punteggio}</td>
+                    </tr>`;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                </div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
         function stampaListaPartite(container, listaMostrata, listaTotale, titolo, icona, coloreTesto) {
             let htmlSelect = creaMenuFiltroGironi(listaTotale);
-            
             if(listaMostrata.length === 0) { 
                 container.innerHTML = htmlSelect + `<p class="text-gray-400 text-center py-8">Nessun match da giocare per questa selezione.</p>`; 
                 return; 
@@ -349,18 +444,11 @@
             let html = htmlSelect + `<h3 class="text-xl font-bold mb-4 ${coloreTesto}"><i class="fas ${icona} mr-2"></i>${titolo}</h3><div class="space-y-3">`;
             listaMostrata.forEach(p => {
                 let partiBadge = [`<b class="${currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400'}">${p.girone.toUpperCase()} - ${p.turno}</b>`];
-                
-                if (p.campo && p.campo.trim() !== '') {
-                    partiBadge.push(`<span class="text-white">${p.campo}</span>`);
-                }
-                if (p.orario && p.orario.trim() !== '') {
-                    partiBadge.push(`<span class="text-white">${p.orario}</span>`);
-                }
+                if (p.campo && p.campo.trim() !== '') partiBadge.push(`<span class="text-white">${p.campo}</span>`);
+                if (p.orario && p.orario.trim() !== '') partiBadge.push(`<span class="text-white">${p.orario}</span>`);
                 
                 let badgeDetails = partiBadge.join(' - ');
-                if (p.data && p.data.trim() !== '') {
-                    badgeDetails += ` (${p.data})`;
-                }
+                if (p.data && p.data.trim() !== '') badgeDetails += ` (${p.data})`;
 
                 const vsColor = currentCategory === 'maschile' ? 'text-sky-400' : 'text-pink-400';
 
@@ -382,7 +470,6 @@
 
         function stampaListaRisultati(container, listaMostrata, listaTotale, titolo, icona, coloreTesto) {
             let htmlSelect = creaMenuFiltroGironi(listaTotale);
-
             if(listaMostrata.length === 0) { 
                 container.innerHTML = htmlSelect + `<p class="text-gray-400 text-center py-8">Nessun risultato disponibile per questa selezione.</p>`; 
                 return; 
@@ -410,7 +497,7 @@
         function calcolaEMostraClassifica(container, tutteLePartite) {
             let gironi = {};
             tutteLePartite.forEach(p => {
-                if (!p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1')) {
+                if (!p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1') && !p.girone.toLowerCase().trim().includes('3pt')) {
                     const gNome = p.girone.toUpperCase() || 'UNICO';
                     if (!gironi[gNome]) gironi[gNome] = {};
                     if (!gironi[gNome][p.casa]) gironi[gNome][p.casa] = { nome: p.casa, vinte: 0, perse: 0, punti: 0, fatti: 0, subiti: 0 };
@@ -419,7 +506,7 @@
             });
 
             tutteLePartite.forEach(p => {
-                if (p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1')) {
+                if (p.giocata && !p.turno.toLowerCase().includes('playoff') && !p.turno.toLowerCase().includes('barilotto') && !p.girone.toLowerCase().trim().includes('1v1') && !p.girone.toLowerCase().trim().includes('3pt')) {
                     const gNome = p.girone.toUpperCase() || 'GENERALE';
                     if(gironi[gNome] && gironi[gNome][p.casa] && gironi[gNome][p.fuori]) {
                         gironi[gNome][p.casa].fatti += p.puntiCasa;
