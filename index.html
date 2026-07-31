@@ -127,7 +127,7 @@
             ],
             threepoint: [
                 { id: '3point_leaderboard', label: 'Qualificazioni', icon: 'fa-list-ol' },
-                { id: '3point_bracket', label: 'Tabellone Finale', icon: 'fa-sitemap' }
+                { id: '3point_bracket', label: 'Fase Finale', icon: 'fa-sitemap' }
             ]
         };
 
@@ -440,36 +440,45 @@
             container.innerHTML = html;
         }
 
-        // --- SEZIONE 3 POINT: TABELLONE ELIMINAZIONE DIRETTA ---
+        // --- SEZIONE 3 POINT: FASE FINALE (SEMIFINALI A SCONTRO DIRETTO E VINCITORE) ---
         function stampaSezione3PointTabellone(container) {
             let matchValidi = DATA_PARTITE.filter(p => p.categoria === filtro3PointSesso && (p.girone.toUpperCase().trim() === '3PT PLAYOFF' || p.turno.toUpperCase().includes('3PT PLAYOFF')));
 
             let htmlHeader = `
             <div class="mb-6 flex justify-center gap-2 sm:gap-3">
                 <button onclick="cambiaFiltro3Point('maschile')" class="px-3 sm:px-6 py-2.5 rounded-xl font-bold transition-all text-xs sm:text-sm flex items-center gap-2 ${filtro3PointSesso === 'maschile' ? 'bg-sky-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
-                    <i class="fas fa-mars"></i> Maschile (Tabellone a 8)
+                    <i class="fas fa-mars"></i> Maschile (8 Qualificati)
                 </button>
                 <button onclick="cambiaFiltro3Point('femminile')" class="px-3 sm:px-6 py-2.5 rounded-xl font-bold transition-all text-xs sm:text-sm flex items-center gap-2 ${filtro3PointSesso === 'femminile' ? 'bg-pink-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
-                    <i class="fas fa-venus"></i> Femminile (Tabellone a 4)
+                    <i class="fas fa-venus"></i> Femminile (4 Qualificati)
                 </button>
             </div>
             <h3 class="text-xl font-bold text-amber-500 mb-4 flex items-center justify-center gap-2 text-center">
-                <i class="fas fa-sitemap"></i> Eliminazione Diretta 3PT (${filtro3PointSesso === 'maschile' ? 'Maschile' : 'Femminile'})
+                <i class="fas fa-sitemap"></i> Fase Finale 3PT (${filtro3PointSesso === 'maschile' ? 'Maschile' : 'Femminile'})
             </h3>`;
 
             if(matchValidi.length === 0) { 
-                container.innerHTML = htmlHeader + `<p class="text-gray-400 text-center py-8">In attesa dell'inserimento dei match di eliminazione diretta nel foglio.<br><span class="text-xs text-gray-500">Nota: Inserisci il girone come "3PT PLAYOFF".</span></p>`; 
+                container.innerHTML = htmlHeader + `<p class="text-gray-400 text-center py-8">In attesa dell'inserimento dei match di fase finale nel foglio.<br><span class="text-xs text-gray-500">Nota: Inserisci il girone come "3PT PLAYOFF".</span></p>`; 
                 return; 
             }
 
             let quarti = matchValidi.filter(p => p.turno.toLowerCase().includes('quarti'));
             let semifinali = matchValidi.filter(p => p.turno.toLowerCase().includes('semifinale') || p.turno.toLowerCase().includes('semi'));
-            let finale = matchValidi.filter(p => p.turno.toLowerCase().includes('finale') && !p.turno.toLowerCase().includes('semi'));
+            let finale = matchValidi.find(p => p.turno.toLowerCase().includes('finale') && !p.turno.toLowerCase().includes('semi'));
+
+            // Trova eventuale vincitore scritto direttamente in una riga col turno 'Finale' o 'Vincitore'
+            let nomeVincitore = "Da definire";
+            if (finale) {
+                if (finale.giocata) {
+                    nomeVincitore = finale.puntiCasa >= finale.puntiFuori ? finale.casa : finale.fuori;
+                } else if (finale.casa && finale.casa.trim() !== "") {
+                    nomeVincitore = finale.casa;
+                }
+            }
 
             let colonne = [];
             if (quarti.length > 0) colonne.push({ nome: "Quarti di Finale", match: quarti, tipo: "quarti" });
-            if (semifinali.length > 0) colonne.push({ nome: "Semifinali", match: semifinali, tipo: "semifinali" });
-            if (finale.length > 0) colonne.push({ nome: "Finale", match: finale, tipo: "finale" });
+            if (semifinali.length > 0) colonne.push({ nome: "Semifinale a 4", match: semifinali, tipo: "semifinali" });
 
             let html = htmlHeader + `<div class="bracket-container flex flex-col md:flex-row gap-6 pb-4 pt-2">`;
 
@@ -479,8 +488,8 @@
                             <div class="flex flex-col gap-3">`;
 
                 col.match.forEach((m, idx) => {
-                    let segnapostoCasa = "1° Qualificato";
-                    let segnapostoFuori = "8° Qualificato";
+                    let segnapostoCasa = "Qualificato";
+                    let segnapostoFuori = "Qualificato";
 
                     if (col.tipo === "quarti") {
                         if (idx === 0) { segnapostoCasa = "1° Qualificato"; segnapostoFuori = "8° Qualificato"; }
@@ -495,9 +504,6 @@
                             if (idx === 0) { segnapostoCasa = "Vinc. Quarti 1"; segnapostoFuori = "Vinc. Quarti 2"; }
                             if (idx === 1) { segnapostoCasa = "Vinc. Quarti 3"; segnapostoFuori = "Vinc. Quarti 4"; }
                         }
-                    } else if (col.tipo === "finale") {
-                        segnapostoCasa = "Vinc. Semifinale 1";
-                        segnapostoFuori = "Vinc. Semifinale 2";
                     }
 
                     const nomeCasa = m.casa && m.casa.trim() !== "" ? m.casa : segnapostoCasa;
@@ -525,6 +531,21 @@
                 html += `   </div>
                          </div>`;
             });
+
+            // SCHEDA VINCITORE CON CORONA
+            html += `
+            <div class="bracket-column flex-1 bg-gray-850 p-3 sm:p-4 rounded-xl border border-amber-500/40 flex flex-col justify-center items-center text-center shadow-xl">
+                <h4 class="text-xs font-extrabold text-amber-400 uppercase tracking-wider text-center border-b border-gray-700 pb-2 mb-4 w-full font-mono">
+                    <i class="fas fa-trophy mr-1"></i> Vincitore 3PT
+                </h4>
+                <div class="w-full bg-gradient-to-b from-amber-600/20 to-gray-800 p-6 rounded-xl border border-amber-500/30 flex flex-col items-center justify-center gap-2">
+                    <span class="text-4xl mb-1">👑</span>
+                    <span class="text-xl sm:text-2xl font-black text-amber-300 tracking-wide uppercase ${nomeVincitore === 'Da definire' ? 'italic text-gray-500 font-normal text-base' : ''}">
+                        ${nomeVincitore}
+                    </span>
+                    ${nomeVincitore !== 'Da definire' ? '<span class="text-[10px] uppercase font-bold bg-amber-500 text-gray-950 px-2 py-0.5 rounded-full mt-1">Campione 3PT</span>' : ''}
+                </div>
+            </div>`;
 
             html += `</div>`;
             container.innerHTML = html;
