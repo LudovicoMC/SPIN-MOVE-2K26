@@ -6,12 +6,9 @@
     <title>SPIN MOVE 2K26</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts: Permanent Marker -->
     <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap" rel="stylesheet">
 
     <style>
-        /* Ottimizzazione mobile per i tabelloni e i nomi delle squadre */
         .match-teams-container, 
         .partita-squadre-container {
             display: flex;
@@ -32,7 +29,6 @@
             flex: 1;
         }
 
-        /* Regole responsive per i tabelloni a colonne (Playoff, Barilotto, King) */
         @media (max-width: 768px) {
             .bracket-container {
                 flex-direction: column !important;
@@ -72,7 +68,6 @@
                 </button>
             </div>
             
-            <!-- TASTO 3 POINT CONTEST -->
             <button onclick="selectCategory('threepoint')" class="w-full max-w-2xl bg-amber-600 hover:bg-amber-500 text-white font-bold py-5 px-8 rounded-2xl shadow-lg transition-all text-xl uppercase tracking-wide flex items-center justify-center gap-3 border-2 border-amber-400/30">
                 <i class="fas fa-bullseye text-3xl"></i> 3 Point Contest
             </button>
@@ -131,7 +126,8 @@
                 { id: 'playoff', label: 'Playoff', icon: 'fa-crown' }
             ],
             threepoint: [
-                { id: '3point_leaderboard', label: 'Classifica 3 Point', icon: 'fa-trophy' }
+                { id: '3point_leaderboard', label: 'Qualificazioni', icon: 'fa-list-ol' },
+                { id: '3point_bracket', label: 'Tabellone Finale', icon: 'fa-sitemap' }
             ]
         };
 
@@ -295,7 +291,7 @@
 
         function cambiaFiltro3Point(sesso) {
             filtro3PointSesso = sesso;
-            renderContent('3point_leaderboard');
+            renderContent(currentTab);
         }
 
         function creaMenuFiltroGironi(listaPartite) {
@@ -322,7 +318,12 @@
             const container = document.getElementById('section-content');
 
             if (tabId === '3point_leaderboard') {
-                stampaSezione3Point(container);
+                stampaSezione3PointQualificazioni(container);
+                return;
+            }
+
+            if (tabId === '3point_bracket') {
+                stampaSezione3PointTabellone(container);
                 return;
             }
 
@@ -361,43 +362,40 @@
             }
         }
 
-        function stampaSezione3Point(container) {
+        // --- SEZIONE 3 POINT: QUALIFICAZIONI ---
+        function stampaSezione3PointQualificazioni(container) {
             const partecipanti = [];
 
-            // Cerca tutte le righe del foglio dove il girone è "3PT" o il turno contiene "3POINT"
             DATA_PARTITE.forEach(p => {
-                const e3point = p.girone.toUpperCase().trim().includes('3PT') || p.turno.toUpperCase().trim().includes('3POINT');
-                if (e3point) {
+                const e3pointQual = (p.girone.toUpperCase().trim() === '3PT') && !p.turno.toUpperCase().includes('PLAYOFF') && !p.turno.toUpperCase().includes('FINALE');
+                if (e3pointQual && p.giocata) {
                     if (p.casa && p.casa.trim() !== '') {
                         partecipanti.push({ nome: p.casa, punteggio: p.puntiCasa, categoria: p.categoria });
-                    }
-                    if (p.fuori && p.fuori.trim() !== '') {
-                        partecipanti.push({ nome: p.fuori, punteggio: p.puntiFuori, categoria: p.categoria });
                     }
                 }
             });
 
             const filtratiPerSesso = partecipanti.filter(p => p.categoria === filtro3PointSesso);
-
-            // Ordina dal punteggio più alto al più basso
             filtratiPerSesso.sort((a, b) => b.punteggio - a.punteggio);
+
+            const sogliaPassaggio = filtro3PointSesso === 'maschile' ? 8 : 4;
 
             let html = `
             <div class="mb-6 flex justify-center gap-3">
                 <button onclick="cambiaFiltro3Point('maschile')" class="px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-2 ${filtro3PointSesso === 'maschile' ? 'bg-sky-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
-                    <i class="fas fa-mars"></i> Maschile
+                    <i class="fas fa-mars"></i> Maschile (Passano i primi 8)
                 </button>
                 <button onclick="cambiaFiltro3Point('femminile')" class="px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-2 ${filtro3PointSesso === 'femminile' ? 'bg-pink-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
-                    <i class="fas fa-venus"></i> Femminile
+                    <i class="fas fa-venus"></i> Femminile (Passano le prime 4)
                 </button>
             </div>
 
             <h3 class="text-xl font-bold mb-4 text-amber-500 flex items-center justify-center gap-2">
-                <i class="fas fa-bullseye"></i> Classifica 3 Point Contest (${filtro3PointSesso === 'maschile' ? 'Maschile' : 'Femminile'})
+                <i class="fas fa-bullseye"></i> Fase di Qualificazione 3PT (${filtro3PointSesso === 'maschile' ? 'Maschile' : 'Femminile'})
             </h3>`;
 
             if (filtratiPerSesso.length === 0) {
-                html += `<p class="text-gray-400 text-center py-8">Nessun punteggio inserito per il 3 Point Contest.<br><span class="text-xs text-gray-500">Nota: Inserisci le righe con girone "3PT" nel foglio Google.</span></p>`;
+                html += `<p class="text-gray-400 text-center py-8">Nessun punteggio inserito per le qualificazioni.<br><span class="text-xs text-gray-500">Nota: Inserisci le righe nel foglio con Girone = "3PT" e Giocata = "SI".</span></p>`;
             } else {
                 html += `
                 <div class="bg-gray-850 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
@@ -405,23 +403,27 @@
                         <thead>
                             <tr class="bg-gray-900 border-b border-gray-700 text-gray-400 text-xs uppercase">
                                 <th class="py-3 px-4 w-12 text-center">Pos</th>
-                                <th class="py-3 px-4">Giocatore / Tiratore</th>
-                                <th class="py-3 px-4 text-center w-24">Punti</th>
+                                <th class="py-3 px-4">Tiratore</th>
+                                <th class="py-3 px-4 text-center w-28">Punteggio</th>
+                                <th class="py-3 px-4 text-center w-32">Stato</th>
                             </tr>
                         </thead>
                         <tbody>`;
 
                 filtratiPerSesso.forEach((p, idx) => {
-                    let medal = `<span class="text-gray-500 font-bold">${idx + 1}</span>`;
-                    if (idx === 0) medal = '🥇';
-                    if (idx === 1) medal = '🥈';
-                    if (idx === 2) medal = '🥉';
+                    const pos = idx + 1;
+                    const qualificato = pos <= sogliaPassaggio;
+                    
+                    let statusBadge = qualificato 
+                        ? `<span class="bg-emerald-900/60 text-emerald-400 border border-emerald-500/40 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase"><i class="fas fa-check mr-1"></i> Qualificato</span>`
+                        : `<span class="bg-rose-900/40 text-rose-400 border border-rose-500/30 text-[11px] px-2.5 py-1 rounded-full font-bold uppercase">Eliminato</span>`;
 
                     html += `
-                    <tr class="border-b border-gray-800 hover:bg-gray-750 transition-colors">
-                        <td class="py-3 px-4 text-center font-bold text-lg">${medal}</td>
+                    <tr class="border-b border-gray-800 hover:bg-gray-750 transition-colors ${qualificato ? 'bg-emerald-950/10' : ''}">
+                        <td class="py-3 px-4 text-center font-bold text-sm ${qualificato ? 'text-emerald-400' : 'text-gray-500'}">${pos}</td>
                         <td class="py-3 px-4 font-semibold text-gray-100">${p.nome}</td>
                         <td class="py-3 px-4 text-center font-mono font-bold text-amber-400 text-lg bg-gray-900/40">${p.punteggio}</td>
+                        <td class="py-3 px-4 text-center">${statusBadge}</td>
                     </tr>`;
                 });
 
@@ -434,6 +436,97 @@
             container.innerHTML = html;
         }
 
+        // --- SEZIONE 3 POINT: TABELLONE ELIMINAZIONE DIRETTA ---
+        function stampaSezione3PointTabellone(container) {
+            let matchValidi = DATA_PARTITE.filter(p => p.categoria === filtro3PointSesso && (p.girone.toUpperCase().trim() === '3PT PLAYOFF' || p.turno.toUpperCase().includes('3PT PLAYOFF')));
+
+            let htmlHeader = `
+            <div class="mb-6 flex justify-center gap-3">
+                <button onclick="cambiaFiltro3Point('maschile')" class="px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-2 ${filtro3PointSesso === 'maschile' ? 'bg-sky-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
+                    <i class="fas fa-mars"></i> Maschile (Tabellone a 8)
+                </button>
+                <button onclick="cambiaFiltro3Point('femminile')" class="px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-2 ${filtro3PointSesso === 'femminile' ? 'bg-pink-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
+                    <i class="fas fa-venus"></i> Femminile (Tabellone a 4)
+                </button>
+            </div>
+            <h3 class="text-xl font-bold text-amber-500 mb-4 flex items-center justify-center gap-2">
+                <i class="fas fa-sitemap"></i> Eliminazione Diretta 3PT (${filtro3PointSesso === 'maschile' ? 'Maschile' : 'Femminile'})
+            </h3>`;
+
+            if(matchValidi.length === 0) { 
+                container.innerHTML = htmlHeader + `<p class="text-gray-400 text-center py-8">In attesa dell'inserimento dei match di eliminazione diretta nel foglio.<br><span class="text-xs text-gray-500">Nota: Inserisci il girone come "3PT PLAYOFF".</span></p>`; 
+                return; 
+            }
+
+            let quarti = matchValidi.filter(p => p.turno.toLowerCase().includes('quarti'));
+            let semifinali = matchValidi.filter(p => p.turno.toLowerCase().includes('semifinale') || p.turno.toLowerCase().includes('semi'));
+            let finale = matchValidi.filter(p => p.turno.toLowerCase().includes('finale') && !p.turno.toLowerCase().includes('semi'));
+
+            let colonne = [];
+            if (quarti.length > 0) colonne.push({ nome: "Quarti di Finale", match: quarti, tipo: "quarti" });
+            if (semifinali.length > 0) colonne.push({ nome: "Semifinali", match: semifinali, tipo: "semifinali" });
+            if (finale.length > 0) colonne.push({ nome: "Finale", match: finale, tipo: "finale" });
+
+            let html = htmlHeader + `<div class="bracket-container flex flex-col md:flex-row gap-6 pb-4 pt-2">`;
+
+            colonne.forEach(col => {
+                html += `<div class="bracket-column flex-1 bg-gray-850 p-3 sm:p-4 rounded-xl border border-gray-700 flex flex-col">
+                            <h4 class="text-xs font-extrabold text-amber-400 uppercase tracking-wider text-center border-b border-gray-700 pb-2 mb-3 font-mono">${col.nome}</h4>
+                            <div class="flex flex-col gap-3">`;
+
+                col.match.forEach((m, idx) => {
+                    let segnapostoCasa = "1° Qualificato";
+                    let segnapostoFuori = "8° Qualificato";
+
+                    if (col.tipo === "quarti") {
+                        if (idx === 0) { segnapostoCasa = "1° Qualificato"; segnapostoFuori = "8° Qualificato"; }
+                        if (idx === 1) { segnapostoCasa = "4° Qualificato"; segnapostoFuori = "5° Qualificato"; }
+                        if (idx === 2) { segnapostoCasa = "2° Qualificato"; segnapostoFuori = "7° Qualificato"; }
+                        if (idx === 3) { segnapostoCasa = "3° Qualificato"; segnapostoFuori = "6° Qualificato"; }
+                    } else if (col.tipo === "semifinali") {
+                        if (filtro3PointSesso === 'femminile') {
+                            if (idx === 0) { segnapostoCasa = "1ª Qualificata"; segnapostoFuori = "4ª Qualificata"; }
+                            if (idx === 1) { segnapostoCasa = "2ª Qualificata"; segnapostoFuori = "3ª Qualificata"; }
+                        } else {
+                            if (idx === 0) { segnapostoCasa = "Vinc. Quarti 1"; segnapostoFuori = "Vinc. Quarti 2"; }
+                            if (idx === 1) { segnapostoCasa = "Vinc. Quarti 3"; segnapostoFuori = "Vinc. Quarti 4"; }
+                        }
+                    } else if (col.tipo === "finale") {
+                        segnapostoCasa = "Vinc. Semifinale 1";
+                        segnapostoFuori = "Vinc. Semifinale 2";
+                    }
+
+                    const nomeCasa = m.casa && m.casa.trim() !== "" ? m.casa : segnapostoCasa;
+                    const nomeFuori = m.fuori && m.fuori.trim() !== "" ? m.fuori : segnapostoFuori;
+
+                    const casaVincente = m.giocata && m.puntiCasa > m.puntiFuori;
+                    const fuoriVincente = m.giocata && m.puntiFuori > m.puntiCasa;
+
+                    html += `<div class="bg-gray-700 rounded-lg border border-gray-600 overflow-hidden shadow border-l-4 ${m.giocata ? 'border-l-amber-500' : 'border-l-gray-500'}">
+                                <div class="flex justify-between items-center px-3 py-2 border-b border-gray-600/50 ${casaVincente ? 'bg-amber-600/10' : ''}">
+                                    <span class="team-name text-sm ${m.giocata ? (casaVincente ? 'font-bold text-amber-300' : 'text-gray-500 line-through') : (m.casa && m.casa.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-xs')}">
+                                        ${casaVincente ? '🎯 ' : ''}${nomeCasa}
+                                    </span>
+                                    ${m.giocata ? `<span class="font-mono font-bold text-sm ${casaVincente ? 'text-amber-400' : 'text-gray-400'}">${m.puntiCasa}</span>` : ''}
+                                </div>
+                                <div class="flex justify-between items-center px-3 py-2 ${fuoriVincente ? 'bg-amber-600/10' : ''}">
+                                    <span class="team-name text-sm ${m.giocata ? (fuoriVincente ? 'font-bold text-amber-300' : 'text-gray-500 line-through') : (m.fuori && m.fuori.trim() !== "" ? 'text-gray-100 font-semibold' : 'text-gray-400 italic text-xs')}">
+                                        ${fuoriVincente ? '🎯 ' : ''}${nomeFuori}
+                                    </span>
+                                    ${m.giocata ? `<span class="font-mono font-bold text-sm ${fuoriVincente ? 'text-amber-400' : 'text-gray-400'}">${m.puntiFuori}</span>` : ''}
+                                </div>
+                             </div>`;
+                });
+
+                html += `   </div>
+                         </div>`;
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        // --- FUNZIONI DEGLI ALTRI TORNEI ---
         function stampaListaPartite(container, listaMostrata, listaTotale, titolo, icona, coloreTesto) {
             let htmlSelect = creaMenuFiltroGironi(listaTotale);
             if(listaMostrata.length === 0) { 
