@@ -55,7 +55,7 @@
         </div>
     </header>
 
-    <main class="flex-grow container mx-auto px-4 py-8 max-w-5xl">
+    <main class="flex-grow container mx-auto px-2 sm:px-4 py-6 max-w-5xl">
         
         <!-- SELEZIONE CATEGORIA E CONTEST -->
         <div id="category-selection" class="flex flex-col items-center gap-6 my-8">
@@ -88,7 +88,7 @@
 
             <div id="navigation-buttons" class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8"></div>
 
-            <div id="section-content" class="bg-gray-800 rounded-xl p-4 sm:p-6 shadow-xl border border-gray-700 min-h-[300px]">
+            <div id="section-content" class="bg-gray-800 rounded-xl p-2 sm:p-6 shadow-xl border border-gray-700 min-h-[300px]">
                 <div class="text-center py-12 text-gray-400"><i class="fas fa-spinner animate-spin text-2xl mb-2"></i> Caricamento dati...</div>
             </div>
         </div>
@@ -381,16 +381,16 @@
             const sogliaPassaggio = filtro3PointSesso === 'maschile' ? 8 : 4;
 
             let html = `
-            <div class="mb-6 flex justify-center gap-3">
-                <button onclick="cambiaFiltro3Point('maschile')" class="px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-2 ${filtro3PointSesso === 'maschile' ? 'bg-sky-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
+            <div class="mb-6 flex justify-center gap-2 sm:gap-3">
+                <button onclick="cambiaFiltro3Point('maschile')" class="px-3 sm:px-6 py-2.5 rounded-xl font-bold transition-all text-xs sm:text-sm flex items-center gap-2 ${filtro3PointSesso === 'maschile' ? 'bg-sky-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
                     <i class="fas fa-mars"></i> Maschile (Passano i primi 8)
                 </button>
-                <button onclick="cambiaFiltro3Point('femminile')" class="px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-2 ${filtro3PointSesso === 'femminile' ? 'bg-pink-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
+                <button onclick="cambiaFiltro3Point('femminile')" class="px-3 sm:px-6 py-2.5 rounded-xl font-bold transition-all text-xs sm:text-sm flex items-center gap-2 ${filtro3PointSesso === 'femminile' ? 'bg-pink-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
                     <i class="fas fa-venus"></i> Femminile (Passano le prime 4)
                 </button>
             </div>
 
-            <h3 class="text-xl font-bold mb-4 text-amber-500 flex items-center justify-center gap-2">
+            <h3 class="text-xl font-bold mb-4 text-amber-500 flex items-center justify-center gap-2 text-center">
                 <i class="fas fa-bullseye"></i> Fase di Qualificazione 3PT (${filtro3PointSesso === 'maschile' ? 'Maschile' : 'Femminile'})
             </h3>`;
 
@@ -398,14 +398,14 @@
                 html += `<p class="text-gray-400 text-center py-8">Nessun punteggio inserito per le qualificazioni.<br><span class="text-xs text-gray-500">Nota: Inserisci le righe nel foglio con Girone = "3PT" e Giocata = "SI".</span></p>`;
             } else {
                 html += `
-                <div class="bg-gray-850 rounded-xl border border-gray-700 overflow-x-auto shadow-lg">
-                    <table class="w-full text-left border-collapse min-w-[320px]">
+                <div class="bg-gray-850 rounded-xl border border-gray-700 shadow-lg">
+                    <table class="w-full text-left border-collapse table-fixed">
                         <thead>
-                            <tr class="bg-gray-900 border-b border-gray-700 text-gray-400 text-xs uppercase">
-                                <th class="py-3 px-3 sm:px-4 w-12 text-center">Pos</th>
-                                <th class="py-3 px-3 sm:px-4">Tiratore</th>
-                                <th class="py-3 px-3 sm:px-4 text-center w-24 sm:w-28">Punti</th>
-                                <th class="py-3 px-3 sm:px-4 text-center w-36">Stato</th>
+                            <tr class="bg-gray-900 border-b border-gray-700 text-gray-400 text-[11px] sm:text-xs uppercase">
+                                <th class="py-3 px-1.5 sm:px-3 w-8 sm:w-12 text-center">Pos</th>
+                                <th class="py-3 px-2 sm:px-3">Tiratore</th>
+                                <th class="py-3 px-1.5 sm:px-3 text-center w-14 sm:w-24">Punti</th>
+                                <th class="py-3 px-1.5 sm:px-3 text-center w-28 sm:w-36">Stato</th>
                             </tr>
                         </thead>
                         <tbody>`;
@@ -415,19 +415,19 @@
                     const qualificato = pos <= sogliaPassaggio;
                     
                     let statusBadge = qualificato 
-                        ? `<span class="inline-flex items-center justify-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider whitespace-nowrap shadow-sm">
-                            <i class="fas fa-check text-[10px]"></i> Qualificato
+                        ? `<span class="inline-flex items-center justify-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] sm:text-[11px] font-extrabold px-2 py-1 rounded-full uppercase tracking-tight whitespace-nowrap shadow-sm">
+                            <i class="fas fa-check text-[9px]"></i> Qualificato
                            </span>`
-                        : `<span class="inline-flex items-center justify-center gap-1.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider whitespace-nowrap opacity-75">
-                            <i class="fas fa-times text-[10px]"></i> Eliminato
+                        : `<span class="inline-flex items-center justify-center gap-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] sm:text-[11px] font-extrabold px-2 py-1 rounded-full uppercase tracking-tight whitespace-nowrap opacity-75">
+                            <i class="fas fa-times text-[9px]"></i> Eliminato
                            </span>`;
 
                     html += `
                     <tr class="border-b border-gray-800 hover:bg-gray-750 transition-colors ${qualificato ? 'bg-emerald-950/20' : ''}">
-                        <td class="py-3 px-3 sm:px-4 text-center font-bold text-sm ${qualificato ? 'text-emerald-400' : 'text-gray-500'}">${pos}</td>
-                        <td class="py-3 px-3 sm:px-4 font-semibold text-gray-100 text-sm sm:text-base">${p.nome}</td>
-                        <td class="py-3 px-3 sm:px-4 text-center font-mono font-extrabold text-amber-400 text-lg bg-gray-900/30">${p.punteggio}</td>
-                        <td class="py-3 px-3 sm:px-4 text-center">${statusBadge}</td>
+                        <td class="py-2.5 px-1.5 sm:px-3 text-center font-bold text-xs sm:text-sm ${qualificato ? 'text-emerald-400' : 'text-gray-500'}">${pos}</td>
+                        <td class="py-2.5 px-2 sm:px-3 font-semibold text-gray-100 text-xs sm:text-base truncate">${p.nome}</td>
+                        <td class="py-2.5 px-1.5 sm:px-3 text-center font-mono font-extrabold text-amber-400 text-base sm:text-lg bg-gray-900/30">${p.punteggio}</td>
+                        <td class="py-2.5 px-1.5 sm:px-3 text-center">${statusBadge}</td>
                     </tr>`;
                 });
 
@@ -445,15 +445,15 @@
             let matchValidi = DATA_PARTITE.filter(p => p.categoria === filtro3PointSesso && (p.girone.toUpperCase().trim() === '3PT PLAYOFF' || p.turno.toUpperCase().includes('3PT PLAYOFF')));
 
             let htmlHeader = `
-            <div class="mb-6 flex justify-center gap-3">
-                <button onclick="cambiaFiltro3Point('maschile')" class="px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-2 ${filtro3PointSesso === 'maschile' ? 'bg-sky-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
+            <div class="mb-6 flex justify-center gap-2 sm:gap-3">
+                <button onclick="cambiaFiltro3Point('maschile')" class="px-3 sm:px-6 py-2.5 rounded-xl font-bold transition-all text-xs sm:text-sm flex items-center gap-2 ${filtro3PointSesso === 'maschile' ? 'bg-sky-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
                     <i class="fas fa-mars"></i> Maschile (Tabellone a 8)
                 </button>
-                <button onclick="cambiaFiltro3Point('femminile')" class="px-6 py-2.5 rounded-xl font-bold transition-all text-sm flex items-center gap-2 ${filtro3PointSesso === 'femminile' ? 'bg-pink-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
+                <button onclick="cambiaFiltro3Point('femminile')" class="px-3 sm:px-6 py-2.5 rounded-xl font-bold transition-all text-xs sm:text-sm flex items-center gap-2 ${filtro3PointSesso === 'femminile' ? 'bg-pink-600 text-white shadow-lg' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}">
                     <i class="fas fa-venus"></i> Femminile (Tabellone a 4)
                 </button>
             </div>
-            <h3 class="text-xl font-bold text-amber-500 mb-4 flex items-center justify-center gap-2">
+            <h3 class="text-xl font-bold text-amber-500 mb-4 flex items-center justify-center gap-2 text-center">
                 <i class="fas fa-sitemap"></i> Eliminazione Diretta 3PT (${filtro3PointSesso === 'maschile' ? 'Maschile' : 'Femminile'})
             </h3>`;
 
