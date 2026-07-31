@@ -104,6 +104,7 @@
 
         let DATA_PARTITE = [];
         let INFO_KING = { maschile: '', femminile: '' };
+        let INFO_3PT = { maschile: '', femminile: '' };
         let currentCategory = '';
         let currentTab = 'calendario';
         let filtroGironeAttivo = 'tutti';
@@ -153,6 +154,9 @@
                 DATA_PARTITE = [...parsedM.data, ...parsedF.data];
                 INFO_KING.maschile = parsedM.infoKing;
                 INFO_KING.femminile = parsedF.infoKing;
+
+                INFO_3PT.maschile = parsedM.info3pt;
+                INFO_3PT.femminile = parsedF.info3pt;
                 
                 const savedCategory = localStorage.getItem('torneo_categoria');
                 if (savedCategory) {
@@ -178,9 +182,11 @@
             const lines = text.split('\n');
             const data = [];
             let infoKingText = '';
+            let info3ptText = '';
 
             const rigaTargetIndex = 1; 
-            const colonnaTargetIndex = categoria === 'maschile' ? 11 : 15;
+            const colonnaTargetIndex = categoria === 'maschile' ? 11 : 15; // L2 (index 11) o P2 (index 15)
+            const colonnaTarget3ptIndex = categoria === 'maschile' ? 13 : 17; // N2 (index 13) o R2 (index 17)
 
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i].trim();
@@ -188,8 +194,9 @@
                 
                 const cols = line.split(',').map(c => c.replace(/^"|"$/g, '').trim());
 
-                if (i === rigaTargetIndex && cols.length > colonnaTargetIndex) {
-                    infoKingText = cols[colonnaTargetIndex];
+                if (i === rigaTargetIndex) {
+                    if (cols.length > colonnaTargetIndex) infoKingText = cols[colonnaTargetIndex];
+                    if (cols.length > colonnaTarget3ptIndex) info3ptText = cols[colonnaTarget3ptIndex];
                 }
 
                 if (i > 0 && cols.length >= 8) {
@@ -208,7 +215,7 @@
                     });
                 }
             }
-            return { data, infoKing: infoKingText };
+            return { data, infoKing: infoKingText, info3pt: info3ptText };
         }
 
         function selectCategory(category, isRestoring = false) {
@@ -440,9 +447,11 @@
             container.innerHTML = html;
         }
 
-        // --- SEZIONE 3 POINT: FASE FINALE (SEMIFINALI A SCONTRO DIRETTO E VINCITORE) ---
+        // --- SEZIONE 3 POINT: FASE FINALE (SEMIFINALI A SCONTRO DIRETTO E VINCITORE CON DIDASCALIA) ---
         function stampaSezione3PointTabellone(container) {
             let matchValidi = DATA_PARTITE.filter(p => p.categoria === filtro3PointSesso && (p.girone.toUpperCase().trim() === '3PT PLAYOFF' || p.turno.toUpperCase().includes('3PT PLAYOFF')));
+
+            const didascalia3pt = INFO_3PT[filtro3PointSesso] ? `<p class="text-sm text-gray-300 mt-1 mb-4 italic font-sans text-center">${INFO_3PT[filtro3PointSesso]}</p>` : '';
 
             let htmlHeader = `
             <div class="mb-6 flex justify-center gap-2 sm:gap-3">
@@ -453,9 +462,12 @@
                     <i class="fas fa-venus"></i> Femminile (4 Qualificati)
                 </button>
             </div>
-            <h3 class="text-xl font-bold text-amber-500 mb-4 flex items-center justify-center gap-2 text-center">
-                <i class="fas fa-sitemap"></i> Fase Finale 3PT (${filtro3PointSesso === 'maschile' ? 'Maschile' : 'Femminile'})
-            </h3>`;
+            <div class="mb-4">
+                <h3 class="text-xl font-bold text-amber-500 mb-1 flex items-center justify-center gap-2 text-center">
+                    <i class="fas fa-sitemap"></i> Fase Finale 3PT (${filtro3PointSesso === 'maschile' ? 'Maschile' : 'Femminile'})
+                </h3>
+                ${didascalia3pt}
+            </div>`;
 
             if(matchValidi.length === 0) { 
                 container.innerHTML = htmlHeader + `<p class="text-gray-400 text-center py-8">In attesa dell'inserimento dei match di fase finale nel foglio.<br><span class="text-xs text-gray-500">Nota: Inserisci il girone come "3PT PLAYOFF".</span></p>`; 
@@ -466,7 +478,6 @@
             let semifinali = matchValidi.filter(p => p.turno.toLowerCase().includes('semifinale') || p.turno.toLowerCase().includes('semi'));
             let finale = matchValidi.find(p => p.turno.toLowerCase().includes('finale') && !p.turno.toLowerCase().includes('semi'));
 
-            // Trova eventuale vincitore scritto direttamente in una riga col turno 'Finale' o 'Vincitore'
             let nomeVincitore = "Da definire";
             if (finale) {
                 if (finale.giocata) {
@@ -478,7 +489,7 @@
 
             let colonne = [];
             if (quarti.length > 0) colonne.push({ nome: "Quarti di Finale", match: quarti, tipo: "quarti" });
-            if (semifinali.length > 0) colonne.push({ nome: "Semifinale ad Eliminazione", match: semifinali, tipo: "semifinali" });
+            if (semifinali.length > 0) colonne.push({ nome: "Semifinale a 4", match: semifinali, tipo: "semifinali" });
 
             let html = htmlHeader + `<div class="bracket-container flex flex-col md:flex-row gap-6 pb-4 pt-2">`;
 
