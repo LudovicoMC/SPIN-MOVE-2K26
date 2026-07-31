@@ -172,7 +172,10 @@
             const data = [];
             let infoKingText = '';
 
-            const cellaTargetIndex = categoria === 'maschile' ? 79 : 44; // Riga 80 per maschile, 45 per femminile (0-indexed)
+            // Riga 2 (indice 1 in 0-indexed) per entrambe le categorie
+            const rigaTargetIndex = 1; 
+            // Colonna L (indice 11) per maschile, Colonna P (indice 15) per femminile
+            const colonnaTargetIndex = categoria === 'maschile' ? 11 : 15;
 
             for (let i = 0; i < lines.length; i++) {
                 let line = lines[i].trim();
@@ -181,9 +184,9 @@
                 // Pulisce le virgolette dal CSV
                 const cols = line.split(',').map(c => c.replace(/^"|"$/g, '').trim());
 
-                // Controlla se siamo alla riga desiderata per l'info extra (Colonna A)
-                if (i === cellaTargetIndex && cols[0]) {
-                    infoKingText = cols[0];
+                // Controlla la cella L2 (maschile) o P2 (femminile)
+                if (i === rigaTargetIndex && cols.length > colonnaTargetIndex) {
+                    infoKingText = cols[colonnaTargetIndex];
                 }
 
                 if (i > 0 && cols.length >= 8) {
